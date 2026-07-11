@@ -1,0 +1,39 @@
+# Supabase-CLI-Konfiguration für die LOKALE Entwicklungsumgebung.
+# Gehostete Umgebungen (demo/preview/production) werden im Supabase-Dashboard
+# konfiguriert — Checkliste dazu: README.md → „Gehostete Umgebung einrichten“.
+
+project_id = "formpilot"
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public", "graphql_public"]
+max_rows = 1000
+
+[db]
+port = 54322
+major_version = 15
+
+[studio]
+enabled = true
+port = 54323
+
+# Lokaler Mail-Fänger: Bestätigungs- und Reset-Mails landen im Inbucket-UI.
+[inbucket]
+enabled = true
+port = 54324
+
+[auth]
+enabled = true
+site_url = "http://localhost:3000"
+additional_redirect_urls = ["http://localhost:3000/auth/callback", "http://localhost:3000/auth/confirm"]
+jwt_expiry = 3600
+enable_refresh_token_rotation = true
+enable_signup = true
+minimum_password_length = 10
+
+[auth.email]
+enable_signup = true
+double_confirm_changes = true
+# E-Mail-Verifikation ist Pflicht: ohne Bestätigung kein Login.
+enable_confirmations = true

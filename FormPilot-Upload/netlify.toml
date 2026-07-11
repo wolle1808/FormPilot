@@ -1,0 +1,47 @@
+# FormPilot — statisches Deployment aus dem Ordner app/
+# Kein Build nötig: index.html läuft ohne Build-Prozess.
+
+[build]
+  publish = "app"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# HTTPS erzwingen: Im Netlify-Dashboard unter "Domain management → HTTPS"
+# die Option "Force HTTPS" aktivieren. Netlify stellt das Zertifikat
+# automatisch bereit und leitet http→https um. Der HSTS-Header unten sorgt
+# dafür, dass Browser die Seite anschließend nur noch über HTTPS ansteuern.
+# ─────────────────────────────────────────────────────────────────────────────
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    # Kein Einbetten in fremde Seiten (Clickjacking-Schutz).
+    X-Frame-Options = "DENY"
+    # Kein MIME-Sniffing — Dateien werden nur als deklarierter Typ interpretiert.
+    X-Content-Type-Options = "nosniff"
+    # Keine Referrer-Weitergabe an Dritte.
+    Referrer-Policy = "no-referrer"
+    # Nur nötige Browser-Funktionen erlauben; Tracking-APIs (FLoC/Topics) abschalten.
+    Permissions-Policy = "camera=(self), microphone=(), geolocation=(), payment=(), usb=(), accelerometer=(), gyroscope=(), magnetometer=(), browsing-topics=(), interest-cohort=()"
+    # HTTPS für zwei Jahre erzwingen (nur über HTTPS wirksam, über HTTP ignoriert).
+    Strict-Transport-Security = "max-age=63072000; includeSubDomains; preload"
+    # Prozess-Isolation gegen Cross-Origin-Angriffe.
+    Cross-Origin-Opener-Policy = "same-origin"
+    Cross-Origin-Resource-Policy = "same-origin"
+    # Content Security Policy (autoritativ per HTTP-Header; die <meta>-CSP in
+    # index.html ist der Fallback und enthält frame-ancestors nicht, da dieser
+    # nur als Header wirkt). 'unsafe-inline' ist für die Ein-Datei-Beta nötig
+    # (Inline-Skript/-Styles, keine Inline-Event-Handler). Die Server-Version
+    # nutzt Nonces ohne 'unsafe-inline'.
+    Content-Security-Policy = "default-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self'; object-src 'self' blob:; frame-src 'self' blob:; manifest-src 'self'"
+
+# HTML-Dokument nicht cachen — es soll nicht veraltet ausgeliefert werden und
+# es sollen keine potenziell sensiblen App-Zustände in Zwischenspeichern landen.
+[[headers]]
+  for = "/"
+  [headers.values]
+    Cache-Control = "no-store, max-age=0"
+
+[[headers]]
+  for = "/index.html"
+  [headers.values]
+    Cache-Control = "no-store, max-age=0"

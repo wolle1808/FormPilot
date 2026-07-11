@@ -1,0 +1,44 @@
+<svg width="1200" height="360" viewBox="0 0 1200 360" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">FormPilot Logo</title>
+  <desc id="desc">A trustworthy dark-blue FormPilot logo with a document shield icon and clean wordmark.</desc>
+
+  <defs>
+    <linearGradient id="shieldGradient" x1="55" y1="36" x2="287" y2="314" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#12324A"/>
+      <stop offset="1" stop-color="#071927"/>
+    </linearGradient>
+    <linearGradient id="accentGradient" x1="116" y1="90" x2="232" y2="236" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#58C7B4"/>
+      <stop offset="1" stop-color="#1FA38F"/>
+    </linearGradient>
+    <filter id="softShadow" x="28" y="20" width="292" height="320" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="12" stdDeviation="14" flood-color="#071927" flood-opacity="0.18"/>
+    </filter>
+  </defs>
+
+  <!-- Icon container -->
+  <g filter="url(#softShadow)">
+    <path d="M174 38L286 78V163C286 235 240 290 174 318C108 290 62 235 62 163V78L174 38Z" fill="url(#shieldGradient)"/>
+    <path d="M174 61L264 93V163C264 219 229 264 174 291C119 264 84 219 84 163V93L174 61Z" stroke="#FFFFFF" stroke-opacity="0.13" stroke-width="4"/>
+  </g>
+
+  <!-- Document -->
+  <path d="M126 88H207L236 117V235C236 246.046 227.046 255 216 255H126C114.954 255 106 246.046 106 235V108C106 96.9543 114.954 88 126 88Z" fill="#F7FAFC"/>
+  <path d="M207 88V117H236L207 88Z" fill="#DCE7EF"/>
+
+  <!-- Document lines -->
+  <rect x="128" y="139" width="72" height="8" rx="4" fill="#9AAFC0"/>
+  <rect x="128" y="163" width="86" height="8" rx="4" fill="#9AAFC0"/>
+  <rect x="128" y="187" width="54" height="8" rx="4" fill="#9AAFC0"/>
+
+  <!-- Check mark -->
+  <circle cx="203" cy="211" r="33" fill="url(#accentGradient)"/>
+  <path d="M188 211.5L198.5 222L220 197" stroke="white" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Wordmark -->
+  <text x="354" y="170" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="74" font-weight="750" letter-spacing="-2.5" fill="#0B1F30">Form</text>
+  <text x="541" y="170" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="74" font-weight="750" letter-spacing="-2.5" fill="#1FA38F">Pilot</text>
+
+  <!-- Claim -->
+  <text x="358" y="218" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="25" font-weight="500" letter-spacing="0.2" fill="#5F7485">Dokumente. Daten. Freigaben.</text>
+</svg>

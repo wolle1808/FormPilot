@@ -1,0 +1,2243 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>FormPilot — Dokumente. Daten. Freigaben.</title>
+<meta name="description" content="FormPilot ist der sichere persönliche Assistent für Daten, Dokumente und Formulare. Testversion — Feedback willkommen.">
+<meta property="og:title" content="FormPilot — Dokumente. Daten. Freigaben.">
+<meta property="og:description" content="Daten einmal hinterlegen, Anforderungen schneller erledigen, Freigaben behalten die Kontrolle. Beta-Test.">
+<link rel="icon" href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="%2312324A" d="M12 1 3 4v7c0 6 4.5 10 9 12 4.5-2 9-6 9-12V4Z"/><path fill="none" stroke="%231FA38F" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" d="m8 12 3 3 5-6"/></svg>'>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#0B1F30; --marine:#12324A; --night:#071927;
+  --teal:#1FA38F; --teal-light:#58C7B4; --teal-surface:#E4F4F0;
+  --bg:#F7FAFC; --line:#DCE7EF; --grayblue:#9AAFC0; --slate:#5F7485; --body:#33475B;
+  --ok:#1E7D4F; --ok-bg:#E9F5EE; --warn:#9A6200; --warn-bg:#FBF3E3;
+  --err:#B42318; --err-bg:#FBEDEB; --info:#22608C; --info-bg:#EAF2F8;
+  --nav-active:#EAF1F6;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{font-family:'Inter',-apple-system,'Segoe UI',sans-serif;background:var(--bg);color:var(--body);font-size:15px;line-height:1.6}
+h1{font-size:28px;font-weight:700;letter-spacing:-0.5px;color:var(--ink);line-height:1.3}
+h2{font-size:22px;font-weight:700;letter-spacing:-0.3px;color:var(--ink);line-height:1.3}
+h3{font-size:17px;font-weight:600;color:var(--ink);line-height:1.4}
+h4{font-size:14.5px;font-weight:600;color:var(--ink)}
+a{color:var(--teal);text-decoration:none;cursor:pointer}
+a:hover{text-decoration:underline}
+svg{flex-shrink:0}
+.page-head{margin-bottom:28px}
+.page-sub{color:var(--slate);margin-top:4px}
+.section{margin-top:36px}
+.section-title{margin-bottom:14px}
+
+/* Layout */
+#sidebar{position:fixed;left:0;top:0;bottom:0;width:240px;background:#fff;border-right:1px solid var(--line);padding:22px 12px 16px;display:flex;flex-direction:column;z-index:30}
+.side-logo{padding:0 10px 20px;border-bottom:1px solid var(--line);margin-bottom:14px}
+.side-logo img{width:172px;display:block}
+.nav-item{display:flex;align-items:center;gap:11px;padding:10px 12px;border-radius:8px;color:var(--slate);font-size:14.5px;font-weight:500;cursor:pointer;border-left:3px solid transparent;margin-bottom:2px}
+.nav-item svg{width:20px;height:20px}
+.nav-item:hover{background:var(--bg)}
+.nav-item.active{background:var(--nav-active);color:var(--marine);font-weight:600;border-left-color:var(--marine)}
+.side-foot{margin-top:auto;padding:14px 12px 0;border-top:1px solid var(--line);font-size:12.5px;color:var(--grayblue)}
+.side-foot a{color:var(--slate);font-size:12.5px;display:inline-block;margin-top:4px}
+main{margin-left:240px;padding:36px 28px 110px}
+.content{max-width:960px;margin:0 auto}
+.narrow{max-width:640px}
+
+/* Cards */
+.card{background:#fff;border:1px solid var(--line);border-radius:10px;padding:22px 24px}
+.cards{display:grid;gap:16px}
+.grid-2{grid-template-columns:1fr 1fr}
+.card-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:6px}
+.card .meta{font-size:13px;color:var(--slate)}
+.card-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:18px;flex-wrap:wrap}
+
+/* Buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:46px;padding:0 20px;border-radius:8px;font-family:'Inter',sans-serif;font-size:15px;font-weight:600;cursor:pointer;border:1px solid transparent;white-space:nowrap}
+.btn svg{width:18px;height:18px}
+.btn-primary{background:var(--marine);color:#fff}
+.btn-primary:hover{background:var(--night)}
+.btn-primary[disabled]{opacity:.4;cursor:not-allowed}
+.btn-primary[disabled]:hover{background:var(--marine)}
+.btn-secondary{background:#fff;border-color:var(--line);color:var(--marine)}
+.btn-secondary:hover{background:var(--bg)}
+.btn-danger{background:#fff;border-color:var(--err);color:var(--err)}
+.btn-danger:hover{background:var(--err-bg)}
+.btn-danger-solid{background:var(--err);color:#fff}
+.btn-danger-solid:hover{background:#9A1C13}
+.btn-sm{height:36px;padding:0 14px;font-size:13.5px}
+.link-btn{background:none;border:none;color:var(--teal);font:500 13.5px 'Inter',sans-serif;cursor:pointer;padding:0}
+.link-btn:hover{text-decoration:underline}
+
+/* Badges */
+.badge{display:inline-flex;align-items:center;border-radius:999px;padding:3px 11px;font-size:12.5px;font-weight:600;white-space:nowrap}
+.badge-ok{background:var(--ok-bg);color:var(--ok)}
+.badge-warn{background:var(--warn-bg);color:var(--warn)}
+.badge-err{background:var(--err-bg);color:var(--err)}
+.badge-info{background:var(--info-bg);color:var(--info)}
+.badge-neutral{background:var(--nav-active);color:var(--slate)}
+.badge-teal{background:var(--teal-surface);color:#0E7A6A}
+
+/* Forms */
+.field{margin-bottom:20px}
+.field label{display:block;font-size:13px;font-weight:600;color:var(--marine);margin-bottom:6px}
+input[type=text],input[type=date],select,textarea{width:100%;height:46px;border:1px solid var(--line);border-radius:8px;padding:0 12px;font-family:'Inter',sans-serif;font-size:15px;color:var(--ink);background:#fff}
+textarea{height:auto;padding:12px;line-height:1.55;min-height:150px;resize:vertical}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--marine);box-shadow:0 0 0 3px rgba(18,50,74,0.12)}
+input.invalid{border-color:var(--err)}
+.help{font-size:13px;color:var(--slate);margin-top:6px;line-height:1.5}
+.error-text{font-size:13px;font-weight:500;color:var(--err);margin-top:6px}
+.check-line{display:flex;align-items:flex-start;gap:10px;font-size:14.5px;color:var(--body);cursor:pointer}
+.check-line input{width:20px;height:20px;accent-color:var(--marine);margin-top:2px;flex-shrink:0}
+
+/* Notes & banners */
+.sec-note{display:flex;gap:9px;align-items:flex-start;font-size:13px;color:var(--slate);line-height:1.5;margin-top:16px}
+.sec-note svg{width:16px;height:16px;color:var(--teal);margin-top:2px}
+.info-banner{display:flex;gap:10px;align-items:flex-start;background:var(--info-bg);color:var(--info);padding:13px 16px;border-radius:10px;font-size:14px;line-height:1.5}
+.info-banner svg{width:18px;height:18px;margin-top:2px}
+.info-banner b{font-weight:600}
+
+/* Progress */
+.progress-wrap{margin:18px 0 26px}
+.progress-label{display:flex;justify-content:space-between;font-size:13.5px;font-weight:600;color:var(--ink);margin-bottom:8px}
+.progress{height:6px;background:var(--line);border-radius:999px;overflow:hidden}
+.progress>div{height:6px;background:var(--teal);border-radius:999px;transition:width .3s}
+
+/* Rows / lists */
+.row{display:flex;align-items:center;gap:14px;padding:14px 0;border-bottom:1px solid var(--line)}
+.row:last-child{border-bottom:none}
+.row .grow{flex:1;min-width:0}
+.row .title{font-weight:600;color:var(--ink);font-size:15px}
+.row .sub{font-size:13px;color:var(--slate);margin-top:1px}
+.doc-icon{width:40px;height:40px;border-radius:8px;background:var(--bg);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;color:var(--slate);font-size:10.5px;font-weight:700;letter-spacing:.3px}
+.mono{font-variant-numeric:tabular-nums}
+
+/* Key-value (Profil) */
+.kv{padding:13px 0;border-bottom:1px solid var(--line)}
+.kv:last-child{border-bottom:none}
+.kv-top{display:flex;align-items:flex-start;gap:12px}
+.kv-label{font-size:13px;color:var(--slate);width:210px;flex-shrink:0;padding-top:2px}
+.kv-value{flex:1;font-size:15px;color:var(--ink);font-weight:500;min-width:0;overflow-wrap:anywhere}
+.kv-value.empty{color:var(--grayblue);font-weight:400}
+.kv .icon-btn{margin-left:auto}
+.kv-help{font-size:13px;color:var(--slate);margin-top:5px;line-height:1.5}
+.kv-used{font-size:12.5px;color:var(--grayblue);margin-top:3px}
+.icon-btn{background:none;border:none;cursor:pointer;color:var(--slate);padding:6px;border-radius:6px;display:inline-flex}
+.icon-btn:hover{background:var(--bg);color:var(--marine)}
+.icon-btn svg{width:17px;height:17px}
+.edit-box{margin-top:10px}
+.edit-actions{display:flex;gap:10px;margin-top:12px}
+
+/* Upload */
+.upload-zone{border:1.5px dashed var(--grayblue);background:var(--bg);border-radius:10px;padding:34px 20px;text-align:center;cursor:pointer;transition:background .15s,border-color .15s}
+.upload-zone:hover{background:#F0F6FA}
+.upload-zone.drag{border-color:var(--teal);background:var(--teal-surface)}
+.upload-zone .uz-title{font-weight:600;color:var(--ink);font-size:15px}
+.upload-zone .uz-sub{font-size:13px;color:var(--slate);margin-top:4px}
+.uz-secure{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:#0E7A6A;font-weight:500;margin-top:12px}
+.uz-secure svg{width:15px;height:15px}
+
+/* Chips (Kategorien) */
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin:20px 0 8px}
+.chip{border:1px solid var(--line);background:#fff;border-radius:999px;padding:6px 14px;font-size:13.5px;font-weight:500;color:var(--slate);cursor:pointer}
+.chip.active{background:var(--marine);border-color:var(--marine);color:#fff}
+
+/* Checklist (Anforderung) */
+.check-item{display:flex;align-items:flex-start;gap:14px;padding:16px 0;border-bottom:1px solid var(--line)}
+.check-item:last-child{border-bottom:none}
+.ci-status{width:34px;height:34px;border-radius:999px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
+.ci-status svg{width:17px;height:17px}
+.ci-ok{background:var(--ok-bg);color:var(--ok)}
+.ci-warn{background:var(--warn-bg);color:var(--warn)}
+.ci-err{background:var(--err-bg);color:var(--err)}
+.ci-info{background:var(--info-bg);color:var(--info)}
+.ci-actions{display:flex;gap:10px;align-items:center;margin-top:10px;flex-wrap:wrap}
+
+/* Table */
+table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+th{background:var(--bg);text-align:left;font-size:13px;font-weight:600;color:var(--slate);padding:10px 14px;border-bottom:1px solid var(--line)}
+td{padding:12px 14px;border-bottom:1px solid var(--line);font-size:14px;color:var(--body);vertical-align:top}
+tr:last-child td{border-bottom:none}
+
+/* Modal */
+.modal-backdrop{position:fixed;inset:0;background:rgba(7,25,39,0.45);display:flex;align-items:center;justify-content:center;z-index:50;padding:16px}
+.modal{background:#fff;border-radius:10px;max-width:460px;width:100%;padding:26px;box-shadow:0 8px 24px rgba(7,25,39,0.12);max-height:calc(100vh - 32px);max-height:calc(100dvh - 32px);overflow-y:auto}
+.modal h3{font-size:18px;margin-bottom:10px}
+.modal .modal-body{font-size:14.5px;line-height:1.6;color:var(--body)}
+.modal .modal-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:24px}
+
+/* Toast */
+#toast-root{position:fixed;bottom:26px;left:50%;transform:translateX(-50%);z-index:60;display:flex;flex-direction:column;gap:8px;align-items:center;pointer-events:none}
+.toast{background:var(--ink);color:#fff;padding:12px 22px;border-radius:8px;font-size:14px;font-weight:500;box-shadow:0 8px 24px rgba(7,25,39,0.22);animation:toastin .25s ease}
+@keyframes toastin{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+/* Success */
+.success-panel{text-align:center;padding:44px 24px}
+.success-icon{width:56px;height:56px;border-radius:999px;background:var(--teal-surface);color:var(--teal);display:inline-flex;align-items:center;justify-content:center;margin-bottom:18px}
+.success-icon svg{width:26px;height:26px}
+
+/* Summary list (Freigabe Schritt 3) */
+.sum-block{border:1px solid var(--line);border-radius:10px;overflow:hidden;margin-bottom:16px}
+.sum-head{background:var(--bg);padding:10px 16px;font-size:13px;font-weight:600;color:var(--slate);border-bottom:1px solid var(--line)}
+.sum-item{display:flex;justify-content:space-between;gap:14px;padding:11px 16px;border-bottom:1px solid var(--line);font-size:14.5px}
+.sum-item:last-child{border-bottom:none}
+.sum-item .l{color:var(--slate)}
+.sum-item .r{color:var(--ink);font-weight:500;text-align:right;overflow-wrap:anywhere}
+
+/* Bottom nav (mobile) */
+#bottomnav{display:none;position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--line);z-index:40;padding:6px 4px calc(6px + env(safe-area-inset-bottom))}
+.bn-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:10.5px;font-weight:500;color:var(--slate);padding:7px 0 5px;border-radius:8px;cursor:pointer}
+.bn-item svg{width:21px;height:21px}
+.bn-item.active{color:var(--marine);font-weight:600}
+#mobilehead{display:none;align-items:center;justify-content:center;padding:14px 16px 4px}
+#mobilehead img{width:148px}
+
+body.gate #sidebar,body.gate #bottomnav,body.gate #mobilehead{display:none}
+body.gate main{margin-left:0}
+input[type=password],input[type=email]{width:100%;height:46px;border:1px solid var(--line);border-radius:8px;padding:0 12px;font-family:'Inter',sans-serif;font-size:15px;color:var(--ink);background:#fff}
+.login-wrap{max-width:420px;margin:9vh auto 0}
+.login-logo{text-align:center;margin-bottom:24px}
+.login-logo img{width:190px}
+.person-block{margin:0 2px 14px;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:var(--bg);cursor:pointer}
+.person-block .pb-label{font-size:11.5px;font-weight:600;color:var(--grayblue);letter-spacing:.2px}
+.person-block .pb-name{display:flex;align-items:center;justify-content:space-between;font-size:14px;font-weight:600;color:var(--marine);margin-top:2px}
+.side-search{margin:0 2px 14px}
+.side-search input{height:38px;font-size:13.5px}
+.goal-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:480px){.goal-grid{grid-template-columns:1fr}}
+.goal-card{border:1px solid var(--line);border-radius:10px;background:#fff;padding:16px;cursor:pointer;font-weight:600;font-size:14.5px;color:var(--ink)}
+.goal-card:hover{background:var(--bg)}
+.goal-card.sel{border-color:var(--marine);background:var(--nav-active)}
+.goal-card .sub{display:block;font-weight:400;font-size:12.5px;color:var(--slate);margin-top:3px}
+.mini-progress{display:flex;align-items:center;gap:10px}
+.mini-progress .progress{flex:1}
+.person-chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px}
+.fchip{width:40px;height:40px;border-radius:10px;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0}
+.fchip svg{width:20px;height:20px}
+.fchip-teal{background:var(--teal-surface);color:#0E7A6A}
+.fchip-info{background:var(--info-bg);color:var(--info)}
+.fchip-ok{background:var(--ok-bg);color:var(--ok)}
+.fchip-marine{background:var(--nav-active);color:var(--marine)}
+.fchip-solid{background:var(--marine);color:#fff}
+.fchip-warn{background:var(--warn-bg);color:var(--warn)}
+.fn-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+@media(max-width:700px){.fn-grid{grid-template-columns:1fr 1fr}}
+.fn-tile{border:1px solid var(--line);border-radius:10px;background:#fff;padding:16px;cursor:pointer;display:flex;flex-direction:column;gap:10px}
+.fn-tile:hover{background:var(--bg)}
+.fn-tile .t{font-weight:600;font-size:14.5px;color:var(--ink);line-height:1.35}
+.fn-tile .s{font-size:12.5px;color:var(--slate);line-height:1.45}
+.head-flex{display:flex;gap:14px;align-items:flex-start}
+.head-flex .fchip{margin-top:3px}
+.beta-tag{display:inline-block;background:var(--info-bg);color:var(--info);border-radius:999px;padding:2px 9px;font-size:11px;font-weight:600;letter-spacing:.3px;margin:0 2px 12px}
+#mobilehead{justify-content:space-between}
+#mobilehead .mh-actions{display:flex;gap:4px}
+/* Tastatur-Fokus sichtbar (Maus-Klicks bleiben ohne Ring) */
+button:focus-visible,a:focus-visible,[role=button]:focus-visible,.chip:focus-visible,label.check-line:focus-within input{outline:2px solid var(--marine);outline-offset:2px}
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:0.01ms!important;transition-duration:0.01ms!important}
+}
+@media(max-width:900px){
+  #sidebar{display:none}
+  input[type=text],input[type=date],input[type=password],input[type=email],select,textarea{font-size:16px}
+  main{margin-left:0;padding:20px 16px 110px}
+  #bottomnav{display:flex}
+  #mobilehead{display:flex}
+  .grid-2{grid-template-columns:1fr}
+  .kv-top{flex-wrap:wrap}
+  .kv-label{width:100%;padding-top:0}
+  h1{font-size:24px}
+  .btn-sm{height:44px}
+  .icon-btn{padding:11px}
+  .card{padding:18px 16px}
+  .card[style*="padding:6px 24px"]{padding:2px 16px!important}
+  table{display:block;overflow-x:auto}
+}
+</style>
+</head>
+<body>
+<aside id="sidebar"></aside>
+<div id="mobilehead"><img src="formpilot_logo.svg" alt="FormPilot — Dokumente. Daten. Freigaben."><span class="mh-actions" id="mh-actions"></span></div>
+<main><div class="content" id="view"></div></main>
+<nav id="bottomnav"></nav>
+<input type="file" id="extract-file" style="display:none" accept=".pdf,.jpg,.jpeg,.png,image/*">
+<input type="file" id="extract-cam" style="display:none" accept="image/*" capture="environment">
+<form name="feedback" method="POST" data-netlify="true" netlify-honeypot="bot-field" hidden>
+  <input type="text" name="bot-field"><input type="text" name="verstaendlich"><input type="text" name="vertrauen">
+  <input type="text" name="nutzen"><textarea name="unklar"></textarea><textarea name="fehlt"></textarea><textarea name="verbessern"></textarea>
+  <input type="text" name="name"><input type="text" name="kontakt"><input type="text" name="testphase">
+</form>
+<div id="modal-root"></div>
+<div id="toast-root" role="status" aria-live="polite"></div>
+<script>
+'use strict';
+/* ---------- Icons (Lucide, 1.75px Strich) ---------- */
+const ic = (paths, size) => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"' + (size ? ' style="width:'+size+'px;height:'+size+'px"' : '') + '>' + paths + '</svg>';
+const I = {
+  home: p => ic('<path d="M3 9.5 12 3l9 6.5V20a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 20Z"/><path d="M9 21.5V12h6v9.5"/>', p),
+  clipboard: p => ic('<rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="m9 14 2 2 4-4"/>', p),
+  archive: p => ic('<rect x="2" y="4" width="20" height="5" rx="1"/><path d="M4 9v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9"/><path d="M10 13h4"/>', p),
+  user: p => ic('<path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>', p),
+  send: p => ic('<path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/>', p),
+  shield: p => ic('<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>', p),
+  shieldCheck: p => ic('<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/>', p),
+  upload: p => ic('<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m17 8-5-5-5 5"/><path d="M12 3v12"/>', p),
+  file: p => ic('<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M16 13H8"/><path d="M16 17H8"/>', p),
+  check: p => ic('<path d="m20 6-11 11-5-5"/>', p),
+  alert: p => ic('<path d="m21.73 18-8-14a2 2 0 0 0-3.46 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/>', p),
+  clock: p => ic('<circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>', p),
+  x: p => ic('<path d="M18 6 6 18"/><path d="m6 6 12 12"/>', p),
+  pencil: p => ic('<path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/>', p),
+  download: p => ic('<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/><path d="M12 15V3"/>', p),
+  trash: p => ic('<path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>', p),
+  phone: p => ic('<rect x="5" y="2" width="14" height="20" rx="2"/><path d="M12 18h.01"/>', p),
+  monitor: p => ic('<rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8"/><path d="M12 17v4"/>', p),
+  chevron: p => ic('<path d="m9 18 6-6-6-6"/>', p),
+  plus: p => ic('<path d="M12 5v14"/><path d="M5 12h14"/>', p),
+  info: p => ic('<circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/>', p),
+  eye: p => ic('<path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/>', p),
+  key: p => ic('<circle cx="7.5" cy="15.5" r="5.5"/><path d="m21 2-9.6 9.6"/><path d="m15.5 7.5 3 3L22 7l-3-3"/>', p),
+  bell: p => ic('<path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/>', p),
+  copy: p => ic('<rect x="8" y="8" width="14" height="14" rx="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/>', p),
+  rotate: p => ic('<path d="M3 12a9 9 0 1 0 2.64-6.36L3 8"/><path d="M3 3v5h5"/>', p)
+};
+
+/* ---------- Beispieldaten ---------- */
+const SAMPLE_REQUEST = 'Betreff: Unterlagen für Ihren Vertragsbeginn am 01.08.2026\n\nGuten Tag Herr Wollmer,\n\nfür die Erstellung Ihres Werkstudentenvertrags benötigen wir bis zum 15.07.2026 die folgenden Angaben und Unterlagen:\n\n– Steuer-Identifikationsnummer\n– IBAN für die Gehaltszahlung\n– Krankenkasse\n– Sozialversicherungsnummer\n– aktuelle Immatrikulationsbescheinigung\n\nMit freundlichen Grüßen\nPersonalabteilung\nMuster GmbH';
+
+function seedState(){ return {
+  activePerson:'maurice',
+  auth:{ loggedIn:false },
+  onboarding:{ done:false, goal:'' },
+  persons: [
+    { id:'maurice', name:'Maurice Wollmer', relation:'Ich', profile:[
+      { id:'identitaet', name:'Identität', fields:[
+        { id:'vorname', label:'Vorname', value:'Maurice', help:'' },
+        { id:'nachname', label:'Nachname', value:'Wollmer', help:'' },
+        { id:'geburtsdatum', label:'Geburtsdatum', value:'14.03.2000', help:'', mono:true },
+        { id:'geburtsort', label:'Geburtsort', value:'Trier', help:'' },
+        { id:'staat', label:'Staatsangehörigkeit', value:'deutsch', help:'' }
+      ]},
+      { id:'kontakt', name:'Kontakt', fields:[
+        { id:'adresse', label:'Adresse', value:'Am Weiher 12, 54290 Trier', help:'', uses:4, lastUsed:'Zuletzt verwendet: Freigabe an AOK Rheinland-Pfalz/Saarland' },
+        { id:'email', label:'E-Mail', value:'mauricewollmer@gmail.com', help:'' },
+        { id:'telefon', label:'Telefon', value:'+49 170 1234567', help:'', mono:true }
+      ]},
+      { id:'bildung', name:'Bildung', fields:[
+        { id:'hochschule', label:'Hochschule', value:'Hochschule Trier — Umwelt-Campus Birkenfeld', help:'' },
+        { id:'studiengang', label:'Studiengang', value:'Nachhaltige Betriebswirtschaft (M.Sc.)', help:'' },
+        { id:'matrikelnr', label:'Matrikelnummer', value:'2216492', help:'Steht auf deinem Studierendenausweis und der Immatrikulationsbescheinigung.', mono:true },
+        { id:'semester', label:'Fachsemester', value:'3', help:'' }
+      ]},
+      { id:'arbeit', name:'Arbeit & Steuern', fields:[
+        { id:'steuerid', label:'Steuer-Identifikationsnummer', value:'12 345 678 901', help:'11 Ziffern — steht auf deinem Steuerbescheid oder im Schreiben des Bundeszentralamts für Steuern.', sensitive:true, mono:true, uses:3, lastUsed:'Zuletzt verwendet: Freigabe an AOK Rheinland-Pfalz/Saarland' },
+        { id:'steuerklasse', label:'Steuerklasse', value:'I', help:'' },
+        { id:'svnr', label:'Sozialversicherungsnummer', value:'', help:'Steht auf deinem Sozialversicherungsausweis oder auf einer Gehaltsabrechnung.', sensitive:true, mono:true }
+      ]},
+      { id:'bank', name:'Bank', fields:[
+        { id:'iban', label:'IBAN', value:'DE89 3704 0044 0532 0130 00', help:'22 Stellen, beginnt mit DE. Wird nur nach deiner Freigabe geteilt.', sensitive:true, mono:true, needsReview:true, lastUsed:'Zuletzt aktualisiert: Mai 2025' },
+        { id:'bankname', label:'Kreditinstitut (optional)', value:'Sparkasse Trier', help:'' }
+      ]},
+      { id:'versicherung', name:'Versicherung', fields:[
+        { id:'krankenkasse', label:'Krankenkasse', value:'AOK Rheinland-Pfalz/Saarland', help:'Deine gesetzliche oder private Krankenversicherung.', sensitive:true, uses:2 },
+        { id:'versnr', label:'Versichertennummer', value:'A123456789', help:'Steht auf deiner Gesundheitskarte.', mono:true }
+      ]}
+    ]},
+    { id:'opa', name:'Heinz Wollmer', relation:'Großvater', note:'Vorsorgevollmacht hinterlegt', profile:[
+      { id:'identitaet', name:'Identität', fields:[
+        { id:'vorname', label:'Vorname', value:'Heinz', help:'' },
+        { id:'nachname', label:'Nachname', value:'Wollmer', help:'' },
+        { id:'geburtsdatum', label:'Geburtsdatum', value:'02.11.1948', help:'', mono:true },
+        { id:'geburtsort', label:'Geburtsort', value:'Trier', help:'' }
+      ]},
+      { id:'pflege', name:'Pflege & Gesundheit', fields:[
+        { id:'pflegegrad', label:'Pflegegrad', value:'Pflegegrad 3', help:'Festgestellt durch den Medizinischen Dienst. Bescheid liegt im Dokumentensafe.', sensitive:true },
+        { id:'pflegekasse', label:'Pflegekasse', value:'AOK Pflegekasse', help:'', sensitive:true },
+        { id:'aktenzeichen', label:'Aktenzeichen Pflegekasse', value:'PK-2026-48113', help:'Steht oben auf jedem Schreiben der Pflegekasse.', mono:true },
+        { id:'hausarzt', label:'Behandelnder Arzt', value:'Dr. med. Weber, Hausarztpraxis Trier-Süd', help:'' }
+      ]},
+      { id:'versicherung', name:'Versicherung & Rente', fields:[
+        { id:'krankenkasse', label:'Krankenkasse', value:'AOK Rheinland-Pfalz/Saarland', help:'', sensitive:true },
+        { id:'rentenvnr', label:'Rentenversicherungsnummer', value:'48 021148 W 023', help:'Steht auf dem Rentenbescheid.', sensitive:true, mono:true }
+      ]},
+      { id:'vollmacht', name:'Vollmacht & Kontakte', fields:[
+        { id:'bevollmaechtigt', label:'Bevollmächtigte Person', value:'Maurice Wollmer (Vorsorgevollmacht)', help:'Die Vollmacht ist als Dokument im Safe hinterlegt.' },
+        { id:'notfallkontakt', label:'Notfallkontakt', value:'Maurice Wollmer, +49 170 1234567', help:'' }
+      ]}
+    ]}
+  ],
+  documents: [
+    { id:'d1', personId:'maurice', name:'Personalausweis', cat:'Ausweise', ext:'PDF', validUntil:'08.11.2030', added:'12.01.2026', lastShared:'Wohnbau Trier GmbH', status:'ok' },
+    { id:'d2', personId:'maurice', name:'Immatrikulationsbescheinigung', cat:'Bildung', ext:'PDF', validUntil:'31.07.2026', added:'02.04.2026', lastShared:'AOK Rheinland-Pfalz/Saarland', status:'expiring' },
+    { id:'d10', personId:'maurice', name:'Führerschein', cat:'Ausweise', ext:'PDF', validUntil:'14.03.2033', added:'12.01.2026', lastShared:'', status:'ok' },
+    { id:'d3', personId:'maurice', name:'Lebenslauf', cat:'Arbeit', ext:'PDF', validUntil:'', added:'20.05.2026', lastShared:'', status:'ok' },
+    { id:'d4', personId:'maurice', name:'Mietvertrag', cat:'Wohnen', ext:'PDF', validUntil:'', added:'02.03.2026', lastShared:'', status:'ok' },
+    { id:'d5', personId:'maurice', name:'Versicherungsnachweis Haftpflicht', cat:'Versicherung', ext:'PDF', validUntil:'31.12.2026', added:'05.01.2026', lastShared:'Wohnbau Trier GmbH', status:'ok' },
+    { id:'d6', personId:'opa', name:'Vorsorgevollmacht', cat:'Familie', ext:'PDF', validUntil:'', added:'15.03.2026', lastShared:'AOK Pflegekasse', status:'ok' },
+    { id:'d7', personId:'opa', name:'Pflegegrad-Bescheid', cat:'Gesundheit', ext:'PDF', validUntil:'', added:'10.04.2026', lastShared:'', status:'ok' },
+    { id:'d8', personId:'opa', name:'Betreuungsverfügung', cat:'Familie', ext:'PDF', validUntil:'', added:'15.03.2026', lastShared:'', status:'ok' },
+    { id:'d9', personId:'opa', name:'Rentenbescheid 2026', cat:'Behörden', ext:'PDF', validUntil:'', added:'22.01.2026', lastShared:'', status:'ok' }
+  ],
+  cases: [
+    { id:'c1', personId:'maurice', title:'Arbeitgeber-Onboarding', recipient:'Muster GmbH', purpose:'Werkstudentenvertrag ab 01.08.2026', deadline:'15.07.2026', status:'offen', notes:'', reqText: SAMPLE_REQUEST,
+      history:[ { date:'01.07.2026', text:'Anforderung der Muster GmbH erhalten.' } ] },
+    { id:'c2', personId:'opa', title:'Pflegegrad-Höherstufung — Opa Heinz', recipient:'AOK Pflegekasse', purpose:'Antrag auf Höherstufung (Pflegegrad 3 auf 4)', deadline:'31.08.2026', status:'teilweise', notes:'Arztbericht bei Dr. Weber angefragt, zugesagt bis 20.07.',
+      reqText:'Die AOK Pflegekasse benötigt für den Antrag auf Höherstufung des Pflegegrads folgende Unterlagen: aktueller Pflegegrad-Bescheid, Vorsorgevollmacht, ärztlicher Bericht, Rentenversicherungsnummer und Geburtsdatum der versicherten Person. Bitte reichen Sie die Unterlagen bis zum 31.08.2026 ein. Aktenzeichen: PK-2026-48113, AOK Pflegekasse',
+      history:[ { date:'12.05.2026', text:'Antrag auf Höherstufung gestellt.' }, { date:'02.06.2026', text:'Rückfrage der Pflegekasse: ärztlicher Bericht fehlt.' } ] },
+    { id:'c3', personId:'maurice', title:'Fahrzeugübergabe — SunCar Autovermietung', recipient:'SunCar Autovermietung', purpose:'Fahrzeugübergabe (Buchung über Check24)', deadline:'05.07.2026', status:'offen', notes:'', suggestedDays:3,
+      prefilled:['Name','Geburtsdatum','Buchungsnummer C24-88213 (über Check24 übermittelt)'],
+      reqText:'Guten Tag Herr Wollmer, Ihre Buchung über Check24 liegt uns vor (Buchungsnummer C24-88213). Für die Fahrzeugübergabe am 05.07.2026 benötigen wir noch eine Kopie des Personalausweises und den Führerschein zur Prüfung. Der Zugriff wird nur für die Mietdauer bis zum 06.07.2026 benötigt. Mit freundlichen Grüßen, SunCar Autovermietung',
+      history:[ { date:'02.07.2026', text:'Anforderung der SunCar Autovermietung erhalten — Buchungsdaten über Check24 bereits übermittelt.' } ] }
+  ],
+  packages: [
+    { id:'p1', personId:'maurice', name:'Bewerbungspaket', note:'Für Werkstudenten-Bewerbungen', created:'20.05.2026', docIds:['d3'], fieldIds:['vorname','nachname','email','telefon','adresse'] }
+  ],
+  shares: [
+    { id:'s1', personId:'maurice', recipient:'AOK Rheinland-Pfalz/Saarland', data:['Adresse','Versichertennummer'], docs:['Immatrikulationsbescheinigung'], date:'12.06.2026', expires:'12.09.2026', status:'aktiv', lastAccess:'28.06.2026' },
+    { id:'s2', personId:'maurice', recipient:'Stadt Trier — Bürgeramt', data:['Adresse','Geburtsdatum','Steuer-ID'], docs:[], date:'03.02.2026', expires:'03.05.2026', status:'abgelaufen', lastAccess:'04.02.2026' },
+    { id:'s3', personId:'maurice', recipient:'Wohnbau Trier GmbH', data:['Adresse','IBAN'], docs:['Personalausweis','Versicherungsnachweis Haftpflicht'], date:'15.02.2026', expires:'15.08.2026', status:'widerrufen', revokedAt:'20.04.2026', lastAccess:'18.02.2026' },
+    { id:'s4', personId:'opa', recipient:'AOK Pflegekasse', data:['Pflegegrad','Aktenzeichen Pflegekasse'], docs:['Vorsorgevollmacht'], date:'12.05.2026', expires:'12.11.2026', status:'aktiv', lastAccess:'02.06.2026' }
+  ],
+  log: [
+    { date:'28.06.2026', text:'AOK Rheinland-Pfalz/Saarland hat die Immatrikulationsbescheinigung abgerufen.' },
+    { date:'21.06.2026', text:'Du hast das Profilfeld „Adresse“ aktualisiert.' },
+    { date:'12.06.2026', text:'Freigabe an AOK Rheinland-Pfalz/Saarland erstellt — 2 Angaben, 1 Dokument.' },
+    { date:'02.06.2026', text:'AOK Pflegekasse hat die Vorsorgevollmacht abgerufen (Profil: Heinz Wollmer).' },
+    { date:'20.04.2026', text:'Freigabe an Wohnbau Trier GmbH widerrufen. Kein Zugriff mehr möglich.' }
+  ],
+  devices: [
+    { id:'g1', name:'MacBook Pro', meta:'Dieses Gerät · Trier · zuletzt aktiv: heute, 08:12', current:true },
+    { id:'g2', name:'iPhone 15', meta:'Trier · zuletzt aktiv: gestern, 21:40', current:false }
+  ],
+  twoFA: { active:true, method:'Authenticator-App' },
+  consents: [
+    { id:'ds', label:'Datenschutzerklärung', version:'1.2', date:'02.01.2026', required:true },
+    { id:'nb', label:'Nutzungsbedingungen', version:'1.0', date:'02.01.2026', required:true },
+    { id:'mk', label:'Produkt-Hinweise per E-Mail', version:'—', date:'', required:false, active:false }
+  ],
+  feedback: [],
+  notifications: [
+    { id:'n3', date:'02.07.2026', text:'SunCar Autovermietung bittet um 2 Dokumente für die Fahrzeugübergabe — Zugriff endet automatisch mit der Mietdauer.', read:false },
+    { id:'n1', date:'01.07.2026', text:'Neue Anforderung der Muster GmbH erhalten — 4 Angaben, 1 Dokument, Frist 15.07.2026.', read:false },
+    { id:'n2', date:'28.06.2026', text:'AOK Rheinland-Pfalz/Saarland hat deine Freigabe geöffnet und die Immatrikulationsbescheinigung abgerufen.', read:false }
+  ],
+  conflicts: [
+    { id:'k1', personId:'maurice', fieldId:'adresse', docName:'Mietvertrag', docValue:'Im Treff 7, 54296 Trier', text:'Im Mietvertrag steht eine andere Adresse als in deinem Profil.' }
+  ],
+  settings: { fontZoom:100, notifyDeadlines:true, notifyAccess:true },
+  flags: { visitedOpa:false, feedbackSent:false, guideDismissed:false },
+  stats: { reused:9, forms:1, extracted:0 },
+  formMappings: [],
+  ui: { docFilter:'Alle', analysis:null, share:null, editing:null, fillItem:null, caseId:null, search:'', loginStep:1, pkgDraft:null, form:null, gatePage:null }
+};}
+
+const KEY = 'formpilot-mvp-v7';
+/* State-Migration: ältere/unvollständige gespeicherte Stände werden ergänzt statt verworfen.
+   Nur bei unbrauchbarer Grundstruktur wird auf die Seed-Daten zurückgesetzt. */
+function migrateState(raw){
+  const seed = seedState();
+  if (!raw || typeof raw !== 'object' || !Array.isArray(raw.persons) || !raw.persons.length) return seed;
+  for (const k of Object.keys(seed)){
+    const sv = seed[k], rv = raw[k];
+    if (rv === undefined || rv === null || Array.isArray(sv) !== Array.isArray(rv) || typeof sv !== typeof rv){
+      raw[k] = sv;
+    } else if (!Array.isArray(sv) && typeof sv === 'object'){
+      for (const k2 of Object.keys(sv)) if (rv[k2] === undefined) rv[k2] = sv[k2];
+    }
+  }
+  if (!raw.persons.some(p => p.id === raw.activePerson)) raw.activePerson = raw.persons[0].id;
+  /* Transiente UI-Zustände zurücksetzen (z. B. Reload mitten in einem simulierten Upload) */
+  raw.ui.upload = null; raw.ui.formUpload = null;
+  if (raw.ui.analysis && Array.isArray(raw.ui.analysis.items)) raw.ui.analysis.items.forEach(i => { i.uploading = false; });
+  else if (raw.ui.analysis) raw.ui.analysis = null;
+  return raw;
+}
+let S;
+try { S = migrateState(JSON.parse(localStorage.getItem(KEY))); } catch(e){ S = seedState(); }
+function save(){ try { localStorage.setItem(KEY, JSON.stringify(S)); } catch(e){} }
+
+/* ---------- Helpers ---------- */
+const $ = s => document.querySelector(s);
+const esc = t => String(t == null ? '' : t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+function findField(id){ for (const g of P().profile) for (const f of g.fields) if (f.id === id) return f; return null; }
+function today(){ return '03.07.2026'; }
+function parseDE(d){ const m = /^(\d{2})\.(\d{2})\.(\d{4})$/.exec(d||''); return m ? new Date(+m[3], +m[2]-1, +m[1]) : null; }
+function addDays(n){ const t = new Date(2026,6,3); t.setDate(t.getDate()+n); return String(t.getDate()).padStart(2,'0')+'.'+String(t.getMonth()+1).padStart(2,'0')+'.'+t.getFullYear(); }
+function daysUntil(d){ const x = parseDE(d); return x ? Math.round((x - new Date(2026,6,3)) / 86400000) : null; }
+function toast(msg){ const el = document.createElement('div'); el.className = 'toast'; el.textContent = msg; $('#toast-root').appendChild(el); setTimeout(()=>el.remove(), 3200); }
+function badge(kind, label){ return '<span class="badge badge-'+kind+'">'+esc(label)+'</span>'; }
+function docBadge(doc){
+  if (doc.status === 'expiring') return badge('warn', 'Läuft ab am ' + doc.validUntil);
+  return badge('ok', 'Vollständig');
+}
+function profileCompleteness(){ let total=0, filled=0; for (const g of P().profile){ if (g.id === 'eigene') continue; for (const f of g.fields){ if (/optional/i.test(f.label)) continue; total++; if (f.value) filled++; } } return {total, filled}; }
+function groupCompleteness(g){ if (g.id === 'eigene') return { total:g.fields.length, filled:g.fields.length }; let total=0, filled=0; for (const f of g.fields){ if (/optional/i.test(f.label)) continue; total++; if (f.value) filled++; } return {total, filled}; }
+
+function P(){ return S.persons.find(x => x.id === S.activePerson) || S.persons[0]; }
+function personDocs(){ return S.documents.filter(d => (d.personId || 'maurice') === S.activePerson); }
+function firstName(p){ return p.name.split(' ')[0]; }
+
+/* ---------- Modal ---------- */
+let modalConfirm = null, modalReturnFocus = null;
+function openModal(o){
+  modalConfirm = o.onConfirm || null;
+  modalReturnFocus = document.activeElement;
+  $('#modal-root').innerHTML =
+    '<div class="modal-backdrop" data-act="closeModalBg"><div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">' +
+    '<h3 id="modal-title">' + o.title + '</h3>' +
+    '<div class="modal-body">' + o.body + '</div>' +
+    '<div class="modal-actions">' +
+    '<button class="btn btn-secondary" data-act="closeModal">' + esc(o.cancelLabel || 'Abbrechen') + '</button>' +
+    (o.confirmLabel ? '<button class="btn ' + (o.danger ? 'btn-danger-solid' : 'btn-primary') + '" data-act="confirmModal">' + esc(o.confirmLabel) + '</button>' : '') +
+    '</div></div></div>';
+  const first = $('#modal-root').querySelector('input:not([type=hidden]),select,textarea,button');
+  if (first) first.focus();
+}
+function closeModal(){
+  if (!$('#modal-root').innerHTML){ modalConfirm = null; return; }
+  $('#modal-root').innerHTML = ''; modalConfirm = null;
+  if (modalReturnFocus && document.contains(modalReturnFocus) && modalReturnFocus.focus) modalReturnFocus.focus();
+  modalReturnFocus = null;
+}
+
+/* ---------- Router & Navigation ---------- */
+const NAV = [
+  { route:'dashboard', label:'Übersicht', icon:'home' },
+  { route:'vorgaenge', label:'Vorgänge', icon:'clipboard' },
+  { route:'safe', label:'Dokumentensafe', icon:'archive' },
+  { route:'pakete', label:'Pakete', icon:'file' },
+  { route:'profil', label:'Profil', icon:'user' },
+  { route:'freigaben', label:'Freigaben', icon:'send' },
+  { route:'sicherheit', label:'Sicherheit & Zugriff', icon:'shieldCheck' }
+];
+const NAV_ALIAS = { anforderung:'vorgaenge', freigabe:'vorgaenge', vorgang:'vorgaenge', suche:'' };
+const MOBILE_NAV = ['dashboard','vorgaenge','safe','freigaben','profil'];
+const MOBILE_LABEL = { dashboard:'Übersicht', vorgaenge:'Vorgänge', safe:'Safe', freigaben:'Freigaben', profil:'Profil' };
+
+function route(){ const h = (location.hash || '#/dashboard').replace('#/',''); return h.split('?')[0] || 'dashboard'; }
+function go(r){ if (route() === r) render(); else location.hash = '#/' + r; }
+
+function renderNav(){
+  const r = route();
+  const active = NAV_ALIAS[r] !== undefined ? NAV_ALIAS[r] : r;
+  $('#sidebar').innerHTML =
+    '<div class="side-logo"><img src="formpilot_logo.svg" alt="FormPilot — Dokumente. Daten. Freigaben." onerror="this.outerHTML=\'<div style=&quot;font-weight:800;font-size:21px;letter-spacing:-0.8px;color:#0B1F30&quot;>Form<span style=&quot;color:#1FA38F&quot;>Pilot</span></div>\'"></div>' +
+    '<span class="beta-tag">Beta-Test · v0.9</span>' +
+    '<div class="person-block" data-act="personMenu"><div class="pb-label">AKTIVE PERSON</div><div class="pb-name"><span>' + esc(P().name) + '</span>' + I.chevron(15) + '</div></div>' +
+    '<div class="side-search"><input type="text" id="side-search" placeholder="Suchen …" value="' + esc(S.ui.search) + '"></div>' +
+    (function(){ const n = S.notifications.filter(x => !x.read).length;
+      return '<div class="nav-item" data-act="openNotifications" style="margin-bottom:10px">' + I.bell(20) + '<span>Mitteilungen</span>' + (n ? '<span class="badge badge-warn" style="margin-left:auto">' + n + '</span>' : '') + '</div>'; })() +
+    NAV.map(n => '<div class="nav-item' + (active === n.route ? ' active' : '') + '" data-act="nav" data-route="' + n.route + '">' + I[n.icon](20) + '<span>' + n.label + '</span></div>').join('') +
+    '<div class="side-foot">Angemeldet als Maurice Wollmer<br>Demo-Version · Datenstand 03.07.2026<br>' +
+    '<a data-act="nav" data-route="hilfe">Hilfe</a> · <a data-act="nav" data-route="datenschutz">Datenschutz</a> · <a data-act="openFeedback">Feedback</a> · <a data-act="nav" data-route="unternehmen">Unternehmens-Demo</a><br>' +
+    '<a data-act="resetDemo">Zurücksetzen</a> · <a data-act="logout">Abmelden</a></div>';
+  const unread = S.notifications.filter(x => !x.read).length;
+  const mh = $('#mh-actions');
+  if (mh) mh.innerHTML = '<button class="icon-btn" data-act="nav" data-route="suche" title="Suchen">' + ic('<circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/>', 20) + '</button>' +
+    '<button class="icon-btn" data-act="openNotifications" title="Mitteilungen" style="position:relative">' + I.bell(20) + (unread ? '<span style="position:absolute;top:4px;right:4px;width:8px;height:8px;border-radius:999px;background:var(--warn)"></span>' : '') + '</button>';
+  $('#bottomnav').innerHTML = MOBILE_NAV.map(m => {
+    const n = NAV.find(x => x.route === m);
+    return '<div class="bn-item' + (active === m ? ' active' : '') + '" data-act="nav" data-route="' + m + '">' + I[n.icon](21) + '<span>' + MOBILE_LABEL[m] + '</span></div>';
+  }).join('');
+}
+
+/* Tastatur & Screenreader: div/a-Elemente mit data-act fokussier- und bedienbar machen */
+function enhanceA11y(){
+  for (const el of document.querySelectorAll('[data-act]')){
+    const tag = el.tagName;
+    if (tag === 'BUTTON' || tag === 'INPUT' || tag === 'SELECT' || tag === 'TEXTAREA' || tag === 'LABEL') continue;
+    if (!el.hasAttribute('tabindex')) el.setAttribute('tabindex','0');
+    if (!el.hasAttribute('role')) el.setAttribute('role','button');
+  }
+  for (const el of document.querySelectorAll('.icon-btn[title]'))
+    if (!el.hasAttribute('aria-label')) el.setAttribute('aria-label', el.getAttribute('title'));
+}
+
+function gatedInfoPage(){
+  return '<div style="max-width:960px;margin:20px auto 40px">' +
+    '<div style="margin-bottom:20px"><button class="btn btn-secondary" data-act="gateBack">Zurück zur Anmeldung</button></div>' +
+    VIEWS.datenschutz() + '</div>';
+}
+
+let lastRenderedRoute = null;
+function render(){
+  const gated = !S.auth.loggedIn || !S.onboarding.done;
+  document.body.classList.toggle('gate', gated);
+  if (gated){
+    $('#view').innerHTML = S.ui.gatePage === 'datenschutz' ? gatedInfoPage() : (!S.auth.loggedIn ? VIEWS.login() : VIEWS.onboarding());
+    enhanceA11y(); window.scrollTo(0,0); lastRenderedRoute = null; save(); return;
+  }
+  document.body.style.zoom = (S.settings && S.settings.fontZoom !== 100) ? (S.settings.fontZoom / 100) : '';
+  try { renderNav(); } catch(e){}
+  const r = route();
+  const v = VIEWS[r] || VIEWS.dashboard;
+  try {
+    $('#view').innerHTML = v();
+  } catch(err){
+    $('#view').innerHTML = '<div class="card narrow" style="margin:60px auto;text-align:center"><h3>Da ist etwas schiefgelaufen.</h3>' +
+      '<p style="margin-top:8px">Deine Demo-Daten sind davon nicht betroffen. Lade die Seite neu — oder setze die Demo zurück, falls es erneut passiert.</p>' +
+      '<div style="display:flex;gap:10px;justify-content:center;margin-top:20px"><button class="btn btn-secondary" data-act="resetDemo">Demo zurücksetzen</button>' +
+      '<button class="btn btn-primary" onclick="location.reload()">Seite neu laden</button></div></div>';
+  }
+  enhanceA11y();
+  if (lastRenderedRoute !== r) window.scrollTo(0,0);
+  lastRenderedRoute = r;
+  save();
+}
+let errorRendering = false;
+window.addEventListener('error', () => {
+  if (errorRendering) return;
+  errorRendering = true;
+  try { render(); } catch(e){}
+  setTimeout(() => { errorRendering = false; }, 300);
+});
+window.addEventListener('hashchange', render);
+
+/* ---------- Views ---------- */
+const VIEWS = {};
+
+function nextActionCard(){
+  const g = GOAL_ACTIONS[S.onboarding.goal];
+  if (!g || S.flags.nextDone) return '';
+  return '<div class="card"><div class="card-head"><h3>Dein nächster Schritt</h3>' + badge('teal', S.onboarding.goal) + '</div>' +
+    '<p>' + g.text + '</p>' +
+    '<div class="card-actions"><button class="link-btn" data-act="dismissNext">Ausblenden</button>' +
+    '<button class="btn btn-secondary btn-sm" data-act="' + g.act + '"' + (g.route ? ' data-route="' + g.route + '"' : '') + (g.id ? ' data-case="' + g.id + '"' : '') + '>' + g.btn + '</button></div></div>';
+}
+
+function testGuideCard(){
+  if (S.flags.guideDismissed) return '';
+  const steps = [
+    { done: S.cases.some(c => c.id === 'c1' && (c.status === 'gesendet' || c.status === 'abgelehnt')), text:'Beantworte die Anforderung der Muster GmbH — oder füge gleich eine echte E-Mail von dir ein.' },
+    { done: S.formMappings.length > 0, text:'Fülle ein Formular mit deinen hinterlegten Daten aus: Schnellaktion „Formular ausfüllen“.' },
+    { done: S.flags.visitedOpa, text:'Wechsle oben links die Person zu Heinz Wollmer — so verwaltest du Angehörige.' },
+    { done: S.flags.feedbackSent, text:'Sag uns in 2 Minuten, wie es war.' }
+  ];
+  const open = steps.filter(s => !s.done).length;
+  return '<div class="card" style="border-color:var(--info)"><div class="card-head"><h3>Du testest den FormPilot-Prototyp</h3>' + (open ? badge('info', open + ' von 4 offen') : badge('ok','Alles ausprobiert — danke!')) + '</div>' +
+    '<p class="meta" style="margin-bottom:4px">Alles hier ist eine Demo mit Beispieldaten — du kannst nichts kaputt machen. Probiere diese vier Dinge:</p>' +
+    steps.map(s => '<div class="row" style="padding:9px 0"><div class="ci-status ' + (s.done ? 'ci-ok' : 'ci-info') + '">' + (s.done ? I.check(15) : I.chevron(15)) + '</div><div class="grow" style="font-size:14px;color:var(--ink)' + (s.done ? ';text-decoration:line-through;color:var(--grayblue)' : '') + '">' + s.text + '</div></div>').join('') +
+    '<div class="card-actions" style="justify-content:space-between"><button class="link-btn" data-act="dismissGuide">Ausblenden</button>' +
+    '<button class="btn btn-secondary btn-sm" data-act="openFeedback">Feedback geben</button></div></div>';
+}
+
+VIEWS.dashboard = function(){
+  const tasks = computeTasks();
+  const openCases = S.cases.filter(c => c.status === 'offen' || c.status === 'teilweise');
+  const expiring = S.documents.filter(d => d.status === 'expiring');
+  const lastShare = S.shares.find(s => s.status === 'aktiv') || S.shares[0];
+  const pc = profileCompleteness();
+  const PRIO = { dringend:['err','Dringend'], hoch:['warn','Hoch'], mittel:['info','Mittel'], niedrig:['neutral','Niedrig'] };
+  return '<div class="page-head"><h1>Guten Tag, Maurice.</h1><p class="page-sub">' +
+    (tasks.length ? tasks.length + ' offene ' + (tasks.length === 1 ? 'Aufgabe wartet' : 'Aufgaben warten') + ' auf dich.' : 'Alles im Griff — nichts zu tun.') + '</p></div>' +
+    '<div class="cards">' + testGuideCard() + nextActionCard() +
+    '<div class="card"><div class="card-head"><h3>Deine Aufgaben</h3></div>' +
+    (tasks.length ? tasks.map(t =>
+      '<div class="row" style="cursor:pointer" data-act="' + t.act + '"' + (t.route ? ' data-route="' + t.route + '"' : '') + (t.id ? ' data-case="' + t.id + '"' : '') + (t.person ? ' data-person="' + t.person + '"' : '') + '>' +
+      badge(PRIO[t.prio][0], PRIO[t.prio][1]) + '<div class="grow"><div style="font-size:14.5px;color:var(--ink)">' + esc(t.text) + '</div></div>' + I.chevron(16) + '</div>').join('') :
+      '<p class="meta">Nichts zu tun — gute Nachricht. FormPilot meldet sich ruhig, wenn eine Frist ansteht oder ein Dokument abläuft.</p>') +
+    (openCases.length && openCases[0].status === 'offen' ? '<div class="card-actions"><button class="btn btn-primary" data-act="openCase" data-case="' + openCases[0].id + '">Vorgang fortsetzen</button></div>' : '') +
+    '</div>' +
+    '<div class="cards grid-2">' +
+      '<div class="card"><div class="card-head"><h3>Vorgänge</h3>' + badge(openCases.length ? 'warn' : 'ok', openCases.length + ' offen') + '</div>' +
+      (openCases.length ? openCases.map(c => '<div class="row" style="cursor:pointer" data-act="openCase" data-case="' + c.id + '"><div class="grow"><div class="title">' + esc(c.title) + '</div><div class="sub">' + esc(c.recipient) + ' · Frist ' + c.deadline + '</div></div>' + caseBadge(c) + '</div>').join('') : '<p class="meta">Keine offenen Vorgänge.</p>') +
+      '<div class="card-actions"><button class="btn btn-secondary btn-sm" data-act="nav" data-route="vorgaenge">Alle Vorgänge</button></div></div>' +
+      '<div class="card"><div class="card-head"><h3>Profil — ' + esc(firstName(P())) + '</h3>' + (pc.filled === pc.total ? badge('ok','Vollständig') : badge('warn', pc.filled + ' von ' + pc.total)) + '</div>' +
+      scenarioRows(2) +
+      '<div class="card-actions"><button class="btn btn-secondary btn-sm" data-act="nav" data-route="profil">Zum Profil</button></div></div>' +
+      '<div class="card"><div class="card-head"><h3>Ablaufende Dokumente</h3></div>' +
+      (expiring.length ? expiring.map(d => '<div class="row"><div class="doc-icon">' + esc(d.ext) + '</div><div class="grow"><div class="title">' + esc(d.name) + '</div><div class="sub">' + esc(personName(d.personId)) + '</div></div>' + docBadge(d) + '</div>').join('') : '<p class="meta">Alle Dokumente sind aktuell.</p>') +
+      '<div class="card-actions"><button class="btn btn-secondary btn-sm" data-act="nav" data-route="safe">Zum Dokumentensafe</button></div></div>' +
+      '<div class="card"><div class="card-head"><h3>Letzte Freigabe</h3>' + (lastShare ? shareBadge(lastShare) : '') + '</div>' +
+      (lastShare ? '<p class="meta">' + esc(lastShare.recipient) + '<br>' + lastShare.data.length + ' Angaben, ' + lastShare.docs.length + ' ' + (lastShare.docs.length === 1 ? 'Dokument' : 'Dokumente') + ' · ' + lastShare.date + '</p>' :
+      '<p class="meta">Keine Freigaben. Nur du hast Zugriff auf deine Daten.</p>') +
+      '<div class="card-actions"><button class="btn btn-secondary btn-sm" data-act="nav" data-route="freigaben">Alle Freigaben</button></div></div>' +
+    '</div>' +
+    featureGrid() +
+    '<div class="card"><div class="card-head"><h3>Das hast du dir bereits erspart</h3></div>' +
+    '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:6px;text-align:center">' +
+    [[S.stats.reused,'Angaben wiederverwendet'],[S.stats.forms,'Formulare vorbefüllt'],[S.stats.extracted,'Angaben per Foto übernommen']].map(x =>
+      '<div><div class="mono" style="font-size:26px;font-weight:700;color:var(--ink)">' + x[0] + '</div><div style="font-size:12.5px;color:var(--slate);line-height:1.4">' + x[1] + '</div></div>').join('') + '</div>' +
+    '<p class="help" style="margin-top:12px;text-align:center">Jede davon musstest du nicht heraussuchen oder abtippen.</p></div>' +
+    '</div>' +
+    '<div class="sec-note">' + I.shield(16) + '<span>Nur du hast Zugriff auf deine Daten. FormPilot teilt nichts ohne deine ausdrückliche Freigabe.</span></div>';
+};
+
+function shareBadge(s){
+  if (s.status === 'aktiv') return badge('ok','Aktiv');
+  if (s.status === 'abgelaufen') return badge('neutral','Abgelaufen');
+  return badge('err','Widerrufen');
+}
+
+/* ---------- Profil ---------- */
+VIEWS.profil = function(){
+  const per = P();
+  return pageHead('marine','user','Profil — ' + esc(per.name),
+    (per.relation === 'Ich' ? 'Einmal hinterlegt, immer bereit. Jedes Feld wird nur nach deiner Freigabe geteilt.' :
+    'Verwaltete Person (' + esc(per.relation) + ').' + (per.note ? ' ' + esc(per.note) + '.' : ''))) +
+    personChips() +
+    '<div class="cards">' +
+    '<div class="card" style="border-color:var(--teal)"><div class="card-head"><h3>Schneller als Tippen</h3>' + badge('teal','Neu') + '</div>' +
+    '<p>Fotografiere einen Ausweis, eine Karte oder ein Dokument — oder lade eine Datei hoch. FormPilot liest die Angaben und schlägt sie zur Übernahme vor. Du bestätigst jedes Feld.</p>' +
+    '<div class="card-actions" style="justify-content:flex-start"><button class="btn btn-secondary" data-act="extractCam">' + ic('<path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/>', 18) + 'Foto aufnehmen</button>' +
+    '<button class="btn btn-secondary" data-act="extractFile">' + I.upload(18) + 'Datei auswählen</button></div>' +
+    '<p class="help">Funktioniert z. B. mit Personalausweis, Gesundheitskarte, Gehaltsabrechnung, Bankkarte oder ADAC-Karte. Demo: Erkennung simuliert.</p></div>' +
+    '<div class="card"><div class="card-head"><h3>Vollständigkeit nach Szenario</h3></div>' + scenarioRows(9) + '</div>' +
+    per.profile.map(g => {
+      const c = groupCompleteness(g);
+      return '<div class="card"><div class="card-head"><h3>' + esc(g.name) + '</h3><span class="meta" style="color:' + (c.filled === c.total ? 'var(--ok)' : 'var(--slate)') + ';font-weight:600">' + c.filled + ' von ' + c.total + ' hinterlegt</span></div>' +
+        g.fields.map(f => kvRow(g, f)).join('') + '</div>';
+    }).join('') +
+    '<div class="card"><div class="card-head"><h3>Eigene Felder</h3></div>' +
+    '<p class="meta">Ergänze Angaben, die FormPilot nicht vorgibt — zum Beispiel Kundennummern oder Aktenzeichen.</p>' +
+    '<div class="card-actions"><button class="btn btn-secondary btn-sm" data-act="addCustomField">' + I.plus(15) + 'Eigenes Feld hinzufügen</button></div></div>' +
+    '</div>' +
+    '<div class="sec-note">' + I.shield(16) + '<span>Nur du hast Zugriff auf diese Daten. Änderungen werden sofort gespeichert. Beta-Test: bitte keine echten sensiblen Daten eingeben.</span></div>';
+};
+
+function kvRow(g, f){
+  if (S.ui.editing === f.id){
+    return '<div class="kv"><div class="edit-box"><div class="field" style="margin-bottom:0"><label for="edit-input">' + esc(f.label) + '</label>' +
+      '<input type="text" id="edit-input" value="' + esc(f.value) + '"' + (f.mono ? ' class="mono"' : '') + '>' +
+      (f.help ? '<div class="help">' + esc(f.help) + '</div>' : '') +
+      '<div class="error-text" id="edit-error" style="display:none"></div></div>' +
+      '<div class="edit-actions"><button class="btn btn-primary btn-sm" data-act="saveField" data-field="' + f.id + '">Speichern</button>' +
+      '<button class="btn btn-secondary btn-sm" data-act="cancelEdit">Abbrechen</button></div></div></div>';
+  }
+  return '<div class="kv"><div class="kv-top"><div class="kv-label">' + esc(f.label) + '</div>' +
+    '<div class="kv-value' + (f.value ? (f.mono ? ' mono' : '') : ' empty') + '">' + (f.value ? esc(f.value) : 'Noch nicht hinterlegt') +
+    (f.needsReview ? ' <span class="badge badge-warn" style="margin-left:8px">Prüfen</span>' : '') + '</div>' +
+    '<button class="icon-btn" data-act="editField" data-field="' + f.id + '" title="Bearbeiten">' + I.pencil(17) + '</button></div>' +
+    (f.sensitive && f.help ? '<div class="kv-help">' + esc(f.help) + '</div>' : '') +
+    (f.needsReview ? '<div class="kv-help">Zuletzt aktualisiert im Mai 2025. Bitte bestätige, dass diese Angabe noch stimmt. <button class="link-btn" data-act="confirmField" data-field="' + f.id + '">Angabe bestätigen</button></div>' : '') +
+    ((f.uses || (f.lastUsed && !f.needsReview)) ? '<div class="kv-used">' + (f.uses ? f.uses + '× wiederverwendet — nie abgetippt. ' : '') + (f.lastUsed && !f.needsReview ? esc(f.lastUsed) : '') + '</div>' : '') +
+    (function(){ const k = S.conflicts.find(x => x.fieldId === f.id && x.personId === S.activePerson);
+      if (!k) return '';
+      return '<div class="kv-help" style="color:var(--warn)">' + esc(k.text) + ' Im Dokument „' + esc(k.docName) + '“: <b>' + esc(k.docValue) + '</b> ' +
+        '<button class="link-btn" data-act="resolveConflict" data-conflict="' + k.id + '" data-take="profil">Profilwert behalten</button> · ' +
+        '<button class="link-btn" data-act="resolveConflict" data-conflict="' + k.id + '" data-take="doc">Wert aus Dokument übernehmen</button></div>'; })() +
+    '</div>';
+}
+
+/* ---------- Dokumentensafe ---------- */
+const DOC_CATS = ['Alle','Ausweise','Bildung','Arbeit','Versicherung','Wohnen','Gesundheit','Familie','Behörden','Bank','Verträge','Sonstiges'];
+VIEWS.safe = function(){
+  const filter = S.ui.docFilter || 'Alle';
+  const docs = personDocs().filter(d => filter === 'Alle' || d.cat === filter);
+  const up = S.ui.upload;
+  let zone;
+  if (up && up.progress < 100){
+    zone = '<div class="upload-zone"><div class="uz-title">' + esc(up.name) + ' wird hochgeladen …</div>' +
+      '<div class="progress" style="max-width:320px;margin:14px auto 0"><div style="width:' + up.progress + '%"></div></div>' +
+      '<div class="uz-sub">' + up.progress + ' %</div></div>';
+  } else {
+    zone = '<div class="upload-zone" id="dropzone" data-act="quickUpload"><div class="uz-title">Datei hierher ziehen oder auswählen</div>' +
+      '<div class="uz-sub">PDF, JPG oder PNG, max. 20 MB · Demo-Upload: Es wird keine echte Datei übertragen oder gespeichert</div>' +
+      '<div class="uz-secure">' + I.shieldCheck(15) + 'Testversion — bitte keine echten vertraulichen Dokumente verwenden</div></div>';
+  }
+  return pageHead('teal','archive','Dein Dokumentensafe','Sicher verwahrt. Alle Nachweise an einem Ort, geordnet und auffindbar.') +
+    personChips() + zone +
+    '<input type="file" id="file-input" style="display:none" accept=".pdf,.jpg,.jpeg,.png">' +
+    '<div class="chips">' + DOC_CATS.map(c => '<button class="chip' + (filter === c ? ' active' : '') + '" data-act="docFilter" data-cat="' + c + '">' + c + '</button>').join('') + '</div>' +
+    '<div class="card" style="padding:6px 24px">' +
+    (docs.length ? docs.map(d =>
+      '<div class="row"><div class="doc-icon">' + esc(d.ext) + '</div>' +
+      '<div class="grow"><div class="title">' + esc(d.name) + '</div>' +
+      '<div class="sub">' + esc(d.cat) + (d.validUntil ? ' · gültig bis ' + d.validUntil : '') + (d.lastShared ? ' · zuletzt geteilt: ' + esc(d.lastShared) : '') + '</div></div>' +
+      docBadge(d) +
+      '<button class="icon-btn" data-act="docDetail" data-doc="' + d.id + '" title="Ansehen">' + I.eye(17) + '</button>' +
+      '<button class="icon-btn" data-act="docDelete" data-doc="' + d.id + '" title="Löschen">' + I.trash(17) + '</button></div>'
+    ).join('') :
+    '<div style="text-align:center;padding:36px 16px"><h4>Noch keine Dokumente in dieser Kategorie</h4><p class="meta" style="margin-top:6px">Lade dein erstes Dokument hoch — zum Beispiel deinen Personalausweis.</p></div>') +
+    '</div>' +
+    '<div class="sec-note">' + I.shield(16) + '<span>In dieser Testversion werden nur die Angaben zum Dokument in deinem Browser gespeichert — keine echten Dateien. Geteilt wird nur nach deiner Freigabe.</span></div>';
+};
+
+/* ---------- Anforderung prüfen ---------- */
+const CATALOG = [
+  { key:'steuerid', rx:/steuer[- ]?id|steueridentifikation|steuerliche identifikation|idnr|steuernummer/i, label:'Steuer-Identifikationsnummer', type:'data', fieldId:'steuerid' },
+  { key:'iban', rx:/iban|bankverbindung|kontodaten|kontoverbindung|bankdaten|gehaltskonto/i, label:'IBAN', type:'data', fieldId:'iban' },
+  { key:'krankenkasse', rx:/krankenkasse|krankenversicherung|mitgliedsbescheinigung der kasse|gesetzlich versichert/i, label:'Krankenkasse', type:'data', fieldId:'krankenkasse' },
+  { key:'svnr', rx:/sozialversicherung|sv[- ]?nummer|sozialversicherungsausweis/i, label:'Sozialversicherungsnummer', type:'data', fieldId:'svnr' },
+  { key:'rentenvnr', rx:/rentenversicherungsnummer/i, label:'Rentenversicherungsnummer', type:'data', fieldId:'rentenvnr' },
+  { key:'adresse', rx:/anschrift|meldeadresse|\badresse\b|wohnadresse|wohnanschrift/i, label:'Adresse', type:'data', fieldId:'adresse' },
+  { key:'geburtsdatum', rx:/geburtsdatum/i, label:'Geburtsdatum', type:'data', fieldId:'geburtsdatum' },
+  { key:'immatrikulation', rx:/immatrikulation/i, label:'Immatrikulationsbescheinigung', type:'doc', docName:'Immatrikulationsbescheinigung' },
+  { key:'ausweis', rx:/personalausweis|ausweiskopie|lichtbildausweis|identitätsnachweis|ausweisdokument/i, label:'Personalausweis (Kopie)', type:'doc', docName:'Personalausweis' },
+  { key:'lebenslauf', rx:/lebenslauf|\bcv\b|resume|vita/i, label:'Lebenslauf', type:'doc', docName:'Lebenslauf' },
+  { key:'mietvertrag', rx:/mietvertrag/i, label:'Mietvertrag', type:'doc', docName:'Mietvertrag' },
+  { key:'haftpflicht', rx:/haftpflicht|versicherungsnachweis/i, label:'Versicherungsnachweis Haftpflicht', type:'doc', docName:'Versicherungsnachweis Haftpflicht' },
+  { key:'fuehrungszeugnis', rx:/führungszeugnis/i, label:'Führungszeugnis', type:'doc', docName:'Führungszeugnis', unusual:true },
+  { key:'schufa', rx:/schufa/i, label:'SCHUFA-Auskunft', type:'doc', docName:'SCHUFA-Auskunft', unusual:true },
+  { key:'pflegebescheid', rx:/pflegegrad/i, label:'Pflegegrad-Bescheid', type:'doc', docName:'Pflegegrad-Bescheid' },
+  { key:'vollmacht', rx:/vollmacht/i, label:'Vorsorgevollmacht', type:'doc', docName:'Vorsorgevollmacht' },
+  { key:'arztbericht', rx:/ärztlich|arztbericht|arztbrief/i, label:'Ärztlicher Bericht', type:'doc', docName:'Arztbericht' },
+  { key:'meldebescheinigung', rx:/meldebescheinigung/i, label:'Meldebescheinigung', type:'doc', docName:'Meldebescheinigung' },
+  { key:'fuehrerschein', rx:/führerschein/i, label:'Führerschein', type:'doc', docName:'Führerschein' },
+  { key:'zeugnis', rx:/zeugnis|abschlusszeugnis|notenspiegel/i, label:'Zeugnisse', type:'doc', docName:'Zeugnisse' },
+  { key:'arbeitsvertrag', rx:/arbeitsvertrag/i, label:'Arbeitsvertrag', type:'doc', docName:'Arbeitsvertrag' },
+  { key:'einkommen', rx:/einkommensnachweis|gehaltsnachweis|verdienstbescheinigung|gehaltsabrechnung/i, label:'Einkommensnachweis', type:'doc', docName:'Einkommensnachweis' }
+];
+
+function analyzeText(text){
+  const items = [];
+  for (const c of CATALOG){
+    if (!c.rx.test(text)) continue;
+    const item = { key:c.key, label:c.label, type:c.type, fieldId:c.fieldId||null, docName:c.docName||null, included:true, unusual:!!c.unusual, note:'', status:'fehlt' };
+    if (c.type === 'data'){
+      const f = findField(c.fieldId);
+      if (!f || !f.value){ item.status = 'fehlt'; item.note = 'Diese Angabe ist in deinem Profil noch nicht hinterlegt.'; }
+      else if (f.needsReview){ item.status = 'pruefen'; item.note = 'Zuletzt aktualisiert im Mai 2025. Bitte bestätige, dass die Angabe noch stimmt.'; item.value = f.value; }
+      else { item.status = 'vorhanden'; item.value = f.value; }
+    } else {
+      const d = personDocs().find(x => x.name === c.docName);
+      if (!d){ item.status = 'hochladen'; item.note = 'Dieses Dokument ist noch nicht in deinem Dokumentensafe vorhanden.'; }
+      else {
+        const days = d.validUntil ? daysUntil(d.validUntil) : null;
+        if (days !== null && days < 0){ item.status = 'hochladen'; item.note = 'Das hinterlegte Dokument ist abgelaufen. Bitte lade eine aktuelle Version hoch.'; }
+        else if (days !== null && days <= 45){ item.status = 'pruefen'; item.note = 'Das Dokument läuft am ' + d.validUntil + ' ab. Für einen Vertragsbeginn am 01.08. kann eine aktuelle Version nötig sein.'; item.docId = d.id; }
+        else { item.status = 'vorhanden'; item.docId = d.id; }
+      }
+    }
+    if (item.unusual) item.note = 'Diese Anforderung wirkt für diesen Zweck ungewöhnlich. Prüfe, ob sie wirklich erforderlich ist.' + (item.note ? ' ' + item.note : '');
+    items.push(item);
+  }
+  let recipient = 'Unbekannter Absender';
+  const rm = text.match(/([A-ZÄÖÜ][\wäöüß.\- ]{2,40}(?:GmbH|AG|KG|e\.V\.|Universität|Hochschule|Krankenkasse|Versicherung|Autovermietung|Pflegekasse|Bank))/);
+  if (rm) recipient = rm[1].trim().replace(/^(MfG|Mit freundlichen Grüßen|Viele Grüße|Freundliche Grüße|Beste Grüße|Ihre?|Team)[ ,]+/i, '');
+  else if (/stadt\s+\w+/i.test(text)) recipient = text.match(/Stadt\s+\w+/i)[0];
+  let deadline = null;
+  const dm = text.match(/bis (?:zum |spätestens )?(\d{2}\.\d{2}\.\d{4})/i);
+  if (dm) deadline = dm[1];
+  return { recipient, deadline, items, decided:false };
+}
+
+const STATUS_META = {
+  vorhanden: { cls:'ci-ok', icon:'check', label:'Vorhanden', b:'ok' },
+  fehlt: { cls:'ci-err', icon:'x', label:'Fehlt', b:'err' },
+  pruefen: { cls:'ci-warn', icon:'alert', label:'Prüfen', b:'warn' },
+  hochladen: { cls:'ci-info', icon:'upload', label:'Hochladen', b:'info' }
+};
+
+function checkItem(a, it){
+  const m = STATUS_META[it.status];
+  let actions = '';
+  if (it.uploading){
+    actions = '<div class="ci-actions" style="flex:1"><div class="progress" style="flex:1;max-width:260px"><div style="width:' + it.uploadProgress + '%"></div></div><span class="meta">' + it.uploadProgress + ' %</span></div>';
+  } else if (S.ui.fillItem === it.key){
+    const f = findField(it.fieldId);
+    actions = '<div class="edit-box" style="width:100%"><div class="field" style="margin-bottom:0">' +
+      '<input type="text" id="fill-input" class="mono" placeholder="' + (it.key === 'svnr' ? '12 160394 W 512' : '') + '">' +
+      (f && f.help ? '<div class="help">' + esc(f.help) + '</div>' : '') +
+      '<div class="error-text" id="fill-error" style="display:none"></div></div>' +
+      '<div class="edit-actions"><button class="btn btn-primary btn-sm" data-act="saveFill" data-key="' + it.key + '">Speichern</button>' +
+      '<button class="btn btn-secondary btn-sm" data-act="cancelFill">Abbrechen</button></div></div>';
+  } else if (it.status === 'fehlt' && it.type === 'data'){
+    actions = '<div class="ci-actions"><button class="btn btn-secondary btn-sm" data-act="fillItem" data-key="' + it.key + '">Angabe ergänzen</button></div>';
+  } else if (it.status === 'pruefen' && it.type === 'data'){
+    actions = '<div class="ci-actions"><button class="btn btn-secondary btn-sm" data-act="confirmItem" data-key="' + it.key + '">Angabe bestätigen</button>' +
+      '<button class="link-btn" data-act="editInProfile" data-field="' + it.fieldId + '">Bearbeiten</button></div>';
+  } else if (it.status === 'pruefen' && it.type === 'doc'){
+    actions = '<div class="ci-actions"><button class="btn btn-secondary btn-sm" data-act="uploadItem" data-key="' + it.key + '">Neue Version hochladen</button>' +
+      '<button class="link-btn" data-act="acceptDoc" data-key="' + it.key + '">Vorhandene Version verwenden</button></div>';
+  } else if (it.status === 'hochladen'){
+    actions = '<div class="ci-actions"><button class="btn btn-secondary btn-sm" data-act="uploadItem" data-key="' + it.key + '">Dokument hochladen</button></div>';
+  }
+  return '<div class="check-item"><div class="ci-status ' + m.cls + '">' + I[m.icon](17) + '</div>' +
+    '<div class="grow"><div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap"><span class="title" style="font-size:15px;font-weight:600;color:var(--ink)">' + esc(it.label) + '</span>' + badge(m.b, m.label) + (it.unusual ? badge('warn','Ungewöhnlich') : '') + '</div>' +
+    (it.status === 'vorhanden' && it.value ? '<div class="sub mono">' + esc(it.value) + '</div>' : '') +
+    (it.note ? '<div class="sub" style="margin-top:3px">' + esc(it.note) + '</div>' : '') +
+    actions + '</div>' +
+    '<label class="check-line" title="Nur ausgewählte Inhalte werden freigegeben"><input type="checkbox" aria-label="' + esc(it.label) + ' für die Freigabe auswählen" data-act="toggleItem" data-key="' + it.key + '"' + (it.included ? ' checked' : '') + '></label>' +
+    '</div>';
+}
+
+VIEWS.anforderung = function(){
+  const a = S.ui.analysis;
+  let out = '<div class="page-head"><h1>Anforderung prüfen</h1><p class="page-sub">Füge den Text einer Anforderung ein — zum Beispiel eine E-Mail von Arbeitgeber, Uni, Vermieter oder Behörde. FormPilot erkennt, welche Angaben und Dokumente benötigt werden.</p></div>' +
+    '<div class="card"><div class="field" style="margin-bottom:0"><label for="req-text">Text der Anforderung</label>' +
+    '<textarea id="req-text" placeholder="Text hier einfügen …">' + esc(S.ui.reqText || '') + '</textarea>' +
+    '<div class="help"><b>Tipp:</b> Probiere es mit einer echten E-Mail, die du zuletzt bekommen hast — vom Arbeitgeber, Vermieter oder der Uni. Der Text wird nur auf diesem Gerät ausgewertet und nicht übertragen.</div></div>' +
+    '<div class="card-actions" style="justify-content:space-between"><button class="link-btn" data-act="insertSample">Beispiel-Mail einfügen</button>' +
+    '<button class="btn ' + (a ? 'btn-secondary' : 'btn-primary') + '" data-act="analyze">' + (a ? 'Neu prüfen' : 'Anforderung prüfen') + '</button></div></div>';
+  if (a){
+    const inc = a.items.filter(i => i.included);
+    const open = inc.filter(i => i.status !== 'vorhanden');
+    const ready = inc.length > 0 && open.length === 0;
+    const nData = inc.filter(i => i.type === 'data').length, nDocs = inc.length - nData;
+    out += '<div class="section"><h2 class="section-title">Erkannte Anforderung</h2>' +
+      '<div class="info-banner">' + I.info(18) + '<span><b>' + esc(a.recipient) + '</b> bittet um ' + nData + ' Angaben und ' + nDocs + ' ' + (nDocs === 1 ? 'Dokument' : 'Dokumente') + (a.deadline ? ' — Frist: ' + a.deadline : '') + '. Prüfe die Liste, bevor du etwas freigibst. Über die Auswahl rechts kannst du einzelne Punkte abwählen.</span></div>' +
+      (function(){ const pc = S.cases.find(c => ((a.caseId && c.id === a.caseId) || c.recipient === a.recipient) && c.prefilled);
+        return pc ? '<div style="background:var(--teal-surface);border-radius:10px;padding:12px 16px;margin-top:12px;font-size:14px;color:#0E7A6A"><b>Bereits bei der Buchung übermittelt:</b> ' + pc.prefilled.map(esc).join(' · ') + ' — musst du nicht erneut senden.</div>' : ''; })() +
+      '<div class="card" style="margin-top:16px;padding:6px 24px">' + a.items.map(it => checkItem(a, it)).join('') + '</div>' +
+      (ready ? '' : '<p class="help" style="margin-top:10px">' + (inc.length === 0 ? 'Wähle mindestens einen Punkt aus, um fortzufahren.' : 'Ergänze oder prüfe die offenen Punkte, um zur Freigabe zu gelangen. Abgewählte Punkte werden nicht geteilt.') + '</p>') +
+      '<div class="card-actions"><button class="btn btn-secondary" data-act="declineRequest">Anfrage ablehnen</button>' +
+      '<button class="btn btn-primary"' + (ready ? '' : ' disabled') + ' data-act="startShare">Freigabe vorbereiten</button></div>' +
+      '<div class="sec-note">' + I.shield(16) + '<span>Nichts wird automatisch gesendet. Vor jeder Übermittlung siehst du eine vollständige Zusammenfassung.</span></div></div>';
+  }
+  return out;
+};
+
+/* ---------- Freigabe vorbereiten (3 Schritte) ---------- */
+const STEP_NAMES = ['Angefragte Daten ansehen','Angaben prüfen','Zusammenfassung bestätigen'];
+VIEWS.freigabe = function(){
+  const sh = S.ui.share;
+  if (!sh) return VIEWS.anforderung();
+  if (sh.done){
+    return '<div class="card success-panel narrow" style="margin:40px auto"><div class="success-icon">' + I.check(26) + '</div>' +
+      '<h2>Deine Freigabe für die ' + esc(sh.recipient) + ' wurde erstellt.</h2>' +
+      '<p class="help" style="margin-top:6px">Demo-Freigabe — es wird kein echter externer Zugriff erzeugt.</p>' +
+      '<p style="margin-top:10px">' + sh.items.filter(i=>i.type==='data').length + ' Angaben und ' + sh.items.filter(i=>i.type==='doc').length + ' Dokument(e) · Zugriff läuft am ' + sh.expiresDate + ' automatisch ab.<br>Du kannst den Zugriff jederzeit widerrufen.</p>' +
+      (sh.items.some(i=>i.type==='data') ? '<p style="margin-top:6px;font-size:13.5px;color:#0E7A6A;font-weight:500">' + sh.items.filter(i=>i.type==='data').length + ' Angaben aus deinem Profil wiederverwendet — nichts abgetippt.</p>' : '') +
+      '<div style="max-width:400px;margin:22px auto 0;text-align:left"><div class="field" style="margin-bottom:10px"><label>Dein Freigabelink</label>' +
+      '<div style="display:flex;gap:8px"><input type="text" readonly value="' + esc(sh.link || '') + '" class="mono" style="flex:1">' +
+      '<button class="btn btn-secondary" style="height:46px" data-act="copyLink" data-text="' + esc(sh.link || '') + '">' + I.copy(16) + '</button></div>' +
+      '<div class="help">' + (sh.optDl !== false ? 'Ansicht & Download' : 'Nur Ansicht') + (sh.optPw ? ' · passwortgeschützt' : '') + ' · läuft ab am ' + sh.expiresDate + '</div>' +
+      '<div class="help" style="color:var(--grayblue)">Im echten Betrieb wäre dies ein geschützter Link.</div></div>' +
+      '<button class="link-btn" data-act="copyMsg">Antworttext für deine E-Mail kopieren</button></div>' +
+      '<div style="margin-top:18px"><button class="link-btn" data-act="openFeedback">Wie war dieser Ablauf für dich? Kurzes Feedback geben</button></div>' +
+      '<div style="display:flex;gap:10px;justify-content:center;margin-top:26px;flex-wrap:wrap">' +
+      '<button class="btn btn-secondary" data-act="nav" data-route="dashboard">Zur Übersicht</button>' +
+      '<button class="btn btn-primary" data-act="nav" data-route="freigaben">Freigabe ansehen</button></div></div>';
+  }
+  const step = sh.step;
+  let body = '';
+  if (step === 1){
+    body = '<div class="sum-block"><div class="sum-head">Empfänger</div>' +
+      '<div class="sum-item"><span class="l">Organisation</span><span class="r">' + esc(sh.recipient) + '</span></div>' +
+      '<div class="sum-item"><span class="l">Zweck</span><span class="r">' + esc(sh.purpose) + '</span></div>' +
+      (sh.deadline ? '<div class="sum-item"><span class="l">Frist</span><span class="r">' + sh.deadline + '</span></div>' : '') + '</div>' +
+      '<div class="card" style="padding:6px 24px">' + sh.items.map(it =>
+        '<div class="row"><label class="check-line"><input type="checkbox" aria-label="' + esc(it.label) + ' freigeben" data-act="toggleShareItem" data-key="' + it.key + '"' + (it.included ? ' checked' : '') + '></label>' +
+        '<div class="grow"><div class="title">' + esc(it.label) + (it.sens ? ' ' + badge('warn','Sensibel') : '') + '</div><div class="sub">' + (it.type === 'data' ? 'Angabe aus deinem Profil' : 'Dokument aus deinem Safe') + '</div></div>' + badge('teal', it.type === 'data' ? 'Angabe' : 'Dokument') + '</div>').join('') + '</div>' +
+      '<p class="help" style="margin-top:10px">Du kannst einzelne Punkte abwählen. Nur ausgewählte Inhalte werden freigegeben.</p>';
+  } else if (step === 2){
+    body = '<div class="card" style="padding:6px 24px">' + sh.items.filter(i => i.included).map(it => {
+      if (it.type === 'data'){
+        const f = findField(it.fieldId);
+        if (S.ui.fillItem === 'share-' + it.key){
+          return '<div class="kv"><div class="edit-box"><div class="field" style="margin-bottom:0"><label for="fill-input">' + esc(it.label) + '</label>' +
+            '<input type="text" id="fill-input" class="mono" value="' + esc(f.value) + '">' +
+            (f.help ? '<div class="help">' + esc(f.help) + '</div>' : '') + '<div class="error-text" id="fill-error" style="display:none"></div></div>' +
+            '<div class="edit-actions"><button class="btn btn-primary btn-sm" data-act="saveShareEdit" data-key="' + it.key + '">Speichern</button>' +
+            '<button class="btn btn-secondary btn-sm" data-act="cancelFill">Abbrechen</button></div></div></div>';
+        }
+        return '<div class="kv"><div class="kv-top"><div class="kv-label">' + esc(it.label) + '</div><div class="kv-value mono">' + esc(f.value) + '</div>' +
+          '<button class="icon-btn" data-act="editShareItem" data-key="' + it.key + '" title="Bearbeiten">' + I.pencil(17) + '</button></div></div>';
+      }
+      const d = S.documents.find(x => x.id === it.docId) || {};
+      return '<div class="row"><div class="doc-icon">' + esc(d.ext || 'PDF') + '</div><div class="grow"><div class="title">' + esc(it.label) + '</div>' +
+        '<div class="sub">' + (d.validUntil ? 'gültig bis ' + d.validUntil : 'ohne Ablaufdatum') + '</div></div>' + badge('ok','Vollständig') + '</div>';
+    }).join('') + '</div>' +
+      '<div class="card" style="margin-top:16px"><div class="field" style="margin-bottom:0"><label for="share-expiry">Zugriff gültig bis</label>' +
+      '<select id="share-expiry" data-act-change="setExpiry">' + [3,7,30,60,90].map(dn => '<option value="' + dn + '"' + (sh.expiresDays === dn ? ' selected' : '') + '>' + addDays(dn) + ' (' + dn + ' Tage)' + (sh.suggestedDays === dn ? ' — empfohlen' : '') + '</option>').join('') + '</select>' +
+      '<div class="help">Nach dem Ablaufdatum endet der Zugriff automatisch. Du kannst ihn jederzeit früher widerrufen.</div>' +
+      (sh.expiresDays <= 7 ? '<div class="help" style="color:#0E7A6A">Kurzzeit-Freigabe: Danach sind die Dokumente für den Empfänger nicht mehr abrufbar — zum Beispiel nur für eine Mietdauer.</div>' : '') + '</div>' +
+      '<h4 style="margin:18px 0 8px">Freigabe-Optionen</h4>' +
+      '<label class="check-line" style="padding:6px 0"><input type="checkbox" id="opt-dl"' + (sh.optDl !== false ? ' checked' : '') + '><span>Download erlauben — sonst nur Ansicht im Browser.</span></label>' +
+      '<label class="check-line" style="padding:6px 0"><input type="checkbox" id="opt-pw"' + (sh.optPw ? ' checked' : '') + '><span>Mit Passwort schützen — der Empfänger erhält das Passwort separat.</span></label>' +
+      '<div class="field" style="margin:14px 0 0"><label for="opt-msg">Begleitnachricht (optional)</label>' +
+      '<textarea id="opt-msg" style="min-height:70px">' + esc(sh.msg !== undefined ? sh.msg : 'Hallo, anbei erhalten Sie die angeforderten Unterlagen über meinen sicheren FormPilot-Freigabelink.') + '</textarea></div></div>';
+  } else {
+    const inc = sh.items.filter(i => i.included);
+    body = '<div class="sum-block"><div class="sum-head">Empfänger</div>' +
+      '<div class="sum-item"><span class="l">Organisation</span><span class="r">' + esc(sh.recipient) + '</span></div>' +
+      '<div class="sum-item"><span class="l">Zweck</span><span class="r">' + esc(sh.purpose) + '</span></div>' +
+      '<div class="sum-item"><span class="l">Zugriff läuft ab am</span><span class="r">' + sh.expiresDate + '</span></div>' +
+      '<div class="sum-item"><span class="l">Berechtigung</span><span class="r">' + (sh.optDl !== false ? 'Ansicht & Download' : 'Nur Ansicht') + (sh.optPw ? ' · passwortgeschützt' : '') + '</span></div></div>' +
+      '<div class="sum-block"><div class="sum-head">Diese Angaben werden übermittelt (' + inc.filter(i=>i.type==='data').length + ')</div>' +
+      inc.filter(i => i.type === 'data').map(it => '<div class="sum-item"><span class="l">' + esc(it.label) + (it.sens ? ' ' + badge('warn','Sensibel') : '') + '</span><span class="r mono">' + esc(findField(it.fieldId).value) + '</span></div>').join('') + '</div>' +
+      (inc.some(i => i.sens) ? '<div class="info-banner" style="margin-bottom:16px">' + I.info(18) + '<span><b>Diese Freigabe enthält sensible Daten.</b> Prüfe sorgfältig, bevor du bestätigst.</span></div>' : '') +
+      (inc.some(i => i.type === 'doc') ? '<div class="sum-block"><div class="sum-head">Diese Dokumente werden übermittelt (' + inc.filter(i=>i.type==='doc').length + ')</div>' +
+      inc.filter(i => i.type === 'doc').map(it => '<div class="sum-item"><span class="l">' + esc(it.label) + '</span><span class="r">PDF</span></div>').join('') + '</div>' : '') +
+      '<div class="info-banner">' + I.info(18) + '<span>Du kannst den Zugriff jederzeit in der Freigaben-Übersicht widerrufen. Diese Freigabe läuft am ' + sh.expiresDate + ' automatisch ab.</span></div>' +
+      '<div class="card" style="margin-top:16px"><label class="check-line"><input type="checkbox" id="confirm-check" data-act-change="toggleConfirm"' + (sh.confirmed ? ' checked' : '') + '><span>Ich habe die Zusammenfassung geprüft und gebe die ausgewählten Daten und Dokumente an die ' + esc(sh.recipient) + ' frei.</span></label></div>' +
+      '<p class="help" style="margin-top:10px">Demo-Freigabe: Es wird kein echter externer Zugriff erzeugt — nichts verlässt deinen Browser.</p>';
+  }
+  const canNext = step === 1 ? sh.items.some(i => i.included) : true;
+  return '<div class="page-head"><h1>Freigabe vorbereiten</h1><p class="page-sub">Empfänger: ' + esc(sh.recipient) + '</p></div>' +
+    '<div class="progress-wrap"><div class="progress-label"><span>Schritt ' + step + ' von 3 — ' + STEP_NAMES[step-1] + '</span><span>' + step + '/3</span></div>' +
+    '<div class="progress"><div style="width:' + Math.round(step/3*100) + '%"></div></div></div>' +
+    body +
+    '<div class="card-actions" style="justify-content:space-between;margin-top:24px">' +
+    '<button class="btn btn-secondary" data-act="' + (step === 1 ? 'cancelShare' : 'shareBack') + '">' + (step === 1 ? 'Abbrechen' : 'Zurück') + '</button>' +
+    (step < 3 ? '<button class="btn btn-primary" data-act="shareNext"' + (canNext ? '' : ' disabled') + '>Weiter zu Schritt ' + (step+1) + '</button>' :
+    '<button class="btn btn-primary" data-act="sendShare"' + (sh.confirmed ? '' : ' disabled') + '>Jetzt senden</button>') +
+    '</div>' +
+    '<div class="sec-note">' + I.shield(16) + '<span>Nichts wird ohne deine ausdrückliche Bestätigung gesendet.</span></div>';
+};
+
+/* ---------- Freigaben-Übersicht ---------- */
+function shareCard(s){
+  return '<div class="card"><div class="card-head"><h3>' + esc(s.recipient) + '</h3>' + shareBadge(s) + '</div>' +
+    '<div class="meta">' + esc(personName(s.personId) || '') + ' · ' + s.data.length + ' Angaben, ' + s.docs.length + ' ' + (s.docs.length === 1 ? 'Dokument' : 'Dokumente') + ' · freigegeben am ' + s.date + '</div>' +
+    '<div style="margin-top:12px;font-size:14px"><span style="color:var(--slate)">Geteilte Angaben:</span> ' + (s.data.length ? esc(s.data.join(', ')) : '—') + '</div>' +
+    '<div style="font-size:14px"><span style="color:var(--slate)">Geteilte Dokumente:</span> ' + (s.docs.length ? esc(s.docs.join(', ')) : '—') + '</div>' +
+    (s.status === 'aktiv' ? '<div style="margin-top:10px;font-size:13.5px;font-weight:500;color:var(--warn)">Läuft ab am ' + s.expires + '</div>' : '') +
+    (s.status === 'widerrufen' ? '<div style="margin-top:10px;font-size:13.5px;color:var(--slate)">Widerrufen am ' + s.revokedAt + ' — kein Zugriff mehr möglich.</div>' : '') +
+    (s.status === 'abgelaufen' ? '<div style="margin-top:10px;font-size:13.5px;color:var(--slate)">Abgelaufen am ' + s.expires + ' — der Zugriff wurde automatisch beendet.</div>' : '') +
+    (s.link ? '<div style="font-size:12.5px;color:var(--grayblue);margin-top:4px" class="mono">' + esc(s.link) + ' · ' + (s.optDl ? 'Ansicht & Download' : 'Nur Ansicht') + (s.optPw ? ' · passwortgeschützt' : '') + '</div>' : '') +
+    (s.lastAccess ? '<div style="font-size:12.5px;color:var(--grayblue);margin-top:4px">Zuletzt abgerufen: ' + s.lastAccess + '</div>' : '') +
+    (s.status === 'aktiv' ? '<div class="card-actions"><button class="btn btn-secondary btn-sm" data-act="recipientView" data-share="' + s.id + '">' + I.eye(15) + 'Empfängeransicht</button><button class="btn btn-danger btn-sm" data-act="revoke" data-share="' + s.id + '">Zugriff widerrufen</button></div>' : '') +
+    '</div>';
+}
+VIEWS.freigaben = function(){
+  const act = S.shares.filter(s => s.status === 'aktiv');
+  const past = S.shares.filter(s => s.status !== 'aktiv');
+  return pageHead('solid','shieldCheck','Deine Freigaben','Du siehst jederzeit, wer welche Daten erhalten hat — und kannst jeden Zugriff an Ort und Stelle widerrufen.') +
+    '<h2 class="section-title">Aktiv (' + act.length + ')</h2>' +
+    (act.length ? '<div class="cards">' + act.map(shareCard).join('') + '</div>' :
+      '<div class="card"><p class="meta">Keine aktiven Freigaben. Nur du hast Zugriff auf deine Daten.</p></div>') +
+    '<div class="section"><h2 class="section-title">Abgelaufen & widerrufen (' + past.length + ')</h2>' +
+    '<div class="cards">' + past.map(shareCard).join('') + '</div></div>' +
+    '<div class="sec-note">' + I.shield(16) + '<span>Jede Freigabe hat ein Ablaufdatum. Unbefristeter Zugriff ist bei FormPilot nicht vorgesehen.</span></div>';
+};
+
+/* ---------- Sicherheit & Zugriff ---------- */
+VIEWS.sicherheit = function(){
+  return pageHead('solid','shield','Sicherheit & Zugriff','Nachvollziehbar: dein Konto, deine Geräte und jeder Zugriff auf deine Daten.') +
+    '<div class="cards">' +
+    '<div class="card"><div class="card-head"><h3>Anmeldung & Zwei-Faktor</h3>' + badge('ok','Aktiv') + '</div>' +
+    '<p>Zweiter Faktor: ' + esc(S.twoFA.method) + '. Bei jeder Anmeldung auf einem neuen Gerät wird eine Bestätigung verlangt.</p>' +
+    '<p class="help" style="margin-top:6px">In dieser Testversion sind Anmeldung und Zwei-Faktor simuliert.</p>' +
+    '<div class="card-actions"><button class="btn btn-secondary btn-sm" data-act="change2fa">Verfahren ändern</button></div></div>' +
+    '<div class="card"><div class="card-head"><h3>Angemeldete Geräte</h3></div>' +
+    S.devices.map(d => '<div class="row">' + (d.name.indexOf('iPhone') >= 0 ? I.phone(22) : I.monitor(22)) +
+      '<div class="grow"><div class="title">' + esc(d.name) + (d.current ? ' ' + badge('teal','Dieses Gerät') : '') + '</div><div class="sub">' + esc(d.meta) + '</div></div>' +
+      (d.current ? '' : '<button class="btn btn-secondary btn-sm" data-act="logoutDevice" data-device="' + d.id + '">Abmelden</button>') + '</div>').join('') + '</div>' +
+    '<div class="card"><div class="card-head"><h3>Zugriffsprotokoll</h3></div>' +
+    '<p class="meta" style="margin-bottom:8px">Alle wichtigen Aktionen, chronologisch und in Alltagssprache.</p>' +
+    '<table><tr><th style="width:110px">Datum</th><th>Ereignis</th></tr>' +
+    S.log.slice(0,8).map(l => '<tr><td class="mono">' + l.date + '</td><td>' + esc(l.text) + '</td></tr>').join('') + '</table></div>' +
+    '<div class="card"><div class="card-head"><h3>Deine Rechte (DSGVO)</h3>' + badge('teal','Auskunft · Löschung · Export · Widerruf') + '</div>' +
+    '<p>Auskunft, Berichtigung, Löschung, Datenübertragbarkeit und Widerruf — alles direkt in der App, ohne Antrag. <button class="link-btn" data-act="nav" data-route="datenschutz">Alle Rechte im Überblick</button></p></div>' +
+    '<div class="card"><div class="card-head"><h3>Darstellung & Benachrichtigungen</h3></div>' +
+    '<div class="field" style="max-width:280px"><label for="set-zoom">Schriftgröße</label><select id="set-zoom" data-act-change="setZoom">' +
+    [[100,'Standard'],[110,'Groß (110 %)'],[120,'Sehr groß (120 %)']].map(z => '<option value="' + z[0] + '"' + (S.settings.fontZoom === z[0] ? ' selected' : '') + '>' + z[1] + '</option>').join('') + '</select></div>' +
+    '<label class="check-line" style="padding:5px 0"><input type="checkbox" data-act="toggleNotify" data-key="notifyDeadlines"' + (S.settings.notifyDeadlines ? ' checked' : '') + '><span>Mitteilung bei Fristen und ablaufenden Dokumenten.</span></label>' +
+    '<label class="check-line" style="padding:5px 0"><input type="checkbox" data-act="toggleNotify" data-key="notifyAccess"' + (S.settings.notifyAccess ? ' checked' : '') + '><span>Mitteilung, wenn jemand auf deine Daten zugreift.</span></label>' +
+    '<p class="help" style="margin-top:8px">Kein Marketing als Standard. Benachrichtigungen nur für Fristen und Zugriffe.</p></div>' +
+    '<div class="card"><div class="card-head"><h3>Einwilligungen</h3></div>' +
+    '<p class="meta" style="margin-bottom:6px">Jede Zustimmung mit Version und Datum — Widerruf jederzeit möglich.</p>' +
+    S.consents.map(c => c.required ?
+      '<div class="row"><div class="grow"><div class="title" style="font-size:14.5px">' + esc(c.label) + '</div><div class="sub">Version ' + c.version + ' · zugestimmt am ' + c.date + '</div></div>' + badge('ok','Erteilt') + '</div>' :
+      '<div class="row"><div class="grow"><div class="title" style="font-size:14.5px">' + esc(c.label) + '</div><div class="sub">Optional — Standard ist aus.</div></div><label class="check-line"><input type="checkbox" data-act="toggleConsent" data-consent="' + c.id + '"' + (c.active ? ' checked' : '') + '></label></div>').join('') + '</div>' +
+    '<div class="card"><div class="card-head"><h3>Datenexport</h3></div>' +
+    '<p>Lade eine Kopie aller Angaben, Dokument-Übersichten und Freigaben herunter — dein Datenbestand gehört dir.</p>' +
+    '<div class="card-actions"><button class="btn btn-secondary btn-sm" data-act="exportFeedback">' + I.download(16) + 'Feedback exportieren (' + S.feedback.length + ')</button>' +
+    '<button class="btn btn-secondary btn-sm" data-act="exportData">' + I.download(16) + 'Alle Daten exportieren</button></div></div>' +
+    '<div class="card"><div class="card-head"><h3>Konto löschen</h3></div>' +
+    '<p>Löscht dein Konto und alle gespeicherten Daten und Dokumente endgültig. Aktive Freigaben werden vorher widerrufen.</p>' +
+    '<div class="card-actions"><button class="btn btn-danger btn-sm" data-act="deleteAccount">Konto löschen</button></div></div>' +
+    '</div>' +
+    '<div class="sec-note">' + I.shield(16) + '<span>Alle Demo-Daten liegen ausschließlich in deinem Browser. Jeder Abruf erscheint im Protokoll.</span></div>';
+};
+
+/* ---------- Aktionen ---------- */
+function simulateUpload(get, done){
+  let p = 0;
+  const tick = () => {
+    p += 34;
+    if (p >= 100){ get().uploadProgress = 100; done(); render(); }
+    else { get().uploadProgress = p; render(); setTimeout(tick, 320); }
+  };
+  get().uploadProgress = 0; render(); setTimeout(tick, 320);
+}
+
+const FP = {
+  nav(d){ closeModal(); if (!S.auth.loggedIn || !S.onboarding.done){ S.ui.gatePage = null; render(); return; } go(d.route); },
+  gateBack(){ S.ui.gatePage = null; render(); },
+  resetDemo(){ openModal({ title:'Demo zurücksetzen?', body:'Alle Änderungen in dieser Demo werden verworfen und die Beispieldaten wiederhergestellt.', confirmLabel:'Zurücksetzen', danger:true, onConfirm(){ localStorage.removeItem(KEY); S = seedState(); S.auth.loggedIn = true; closeModal(); go('dashboard'); render(); toast('Demo zurückgesetzt. Wähle dein Testziel.'); } }); },
+  closeModal(){ closeModal(); }, closeModalBg(){ closeModal(); },
+  confirmModal(){ if (modalConfirm) modalConfirm(); },
+
+  /* Profil */
+  editField(d){ S.ui.editing = d.field; render(); const i = $('#edit-input'); if (i){ i.focus(); i.select(); } },
+  cancelEdit(){ S.ui.editing = null; render(); },
+  saveField(d){
+    const f = findField(d.field); const v = $('#edit-input').value.trim();
+    const err = validateField(f, v);
+    if (err){ const e = $('#edit-error'); e.textContent = err; e.style.display = 'block'; $('#edit-input').classList.add('invalid'); return; }
+    const was = f.value; f.value = v; f.needsReview = false; S.ui.editing = null;
+    S.log.unshift({ date: today(), text: 'Du hast das Profilfeld „' + f.label + '“ ' + (was ? 'aktualisiert' : 'hinterlegt') + '.' });
+    render(); toast('Gespeichert.');
+  },
+  confirmField(d){ const f = findField(d.field); f.needsReview = false; S.log.unshift({ date: today(), text:'Du hast die Angabe „' + f.label + '“ bestätigt.' }); render(); toast('Angabe bestätigt.'); },
+
+  /* Safe */
+  docFilter(d){ S.ui.docFilter = d.cat; render(); },
+  quickUpload(){ if (route() !== 'safe'){ go('safe'); setTimeout(()=>{ const fi = $('#file-input'); if (fi) fi.click(); }, 60); } else { $('#file-input').click(); } },
+  docDetail(d){
+    const doc = S.documents.find(x => x.id === d.doc);
+    openModal({ title: esc(doc.name), cancelLabel:'Schließen',
+      body: '<div style="background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:34px 16px;text-align:center;color:var(--grayblue);font-size:13px;margin-bottom:16px">Dateivorschau (Demo)</div>' +
+      '<div class="sum-block" style="margin:0"><div class="sum-item"><span class="l">Kategorie</span><span class="r">' + esc(doc.cat) + '</span></div>' +
+      '<div class="sum-item"><span class="l">Gültig bis</span><span class="r">' + (doc.validUntil || 'ohne Ablaufdatum') + '</span></div>' +
+      '<div class="sum-item"><span class="l">Hinzugefügt am</span><span class="r">' + doc.added + '</span></div>' +
+      '<div class="sum-item"><span class="l">Zuletzt geteilt mit</span><span class="r">' + (doc.lastShared ? esc(doc.lastShared) : 'noch nicht geteilt') + '</span></div></div>' +
+      (doc.versions && doc.versions.length ? '<h4 style="margin:14px 0 6px">Versionen</h4>' + doc.versions.map(v => '<div class="sub" style="padding:3px 0">Version vom ' + v.date + ' — ' + esc(v.note) + '</div>').join('') + '<div class="sub" style="padding:3px 0;font-weight:600;color:var(--ink)">Aktuelle Version vom ' + doc.added + '</div>' : '') +
+      '<div class="card-actions" style="margin-top:16px"><button class="btn btn-secondary btn-sm" data-act="newVersion" data-doc="' + doc.id + '">Neue Version hochladen</button></div>' +
+      '<div class="sec-note" style="margin-top:14px">' + I.shield(16) + '<span>Demo: In dieser Testversion ist keine echte Datei hinterlegt — nur die Angaben zum Dokument. Nur du hast Zugriff.</span></div>' });
+  },
+  newVersion(d){
+    const doc = S.documents.find(x => x.id === d.doc);
+    if (!doc.versions) doc.versions = [];
+    doc.versions.push({ date: doc.added, note:'durch neue Version ersetzt' });
+    doc.added = today(); doc.status = 'ok';
+    if (doc.name === 'Immatrikulationsbescheinigung') doc.validUntil = '31.03.2027';
+    S.log.unshift({ date: today(), text:'Neue Version von „' + doc.name + '“ hochgeladen. Alte Version archiviert.' });
+    closeModal(); render(); toast('Neue Version gespeichert. Die alte Version bleibt im Verlauf.');
+  },
+  docDelete(d){
+    const doc = S.documents.find(x => x.id === d.doc);
+    openModal({ title:'Dokument löschen?', body:'„' + esc(doc.name) + '“ wird endgültig aus deinem Dokumentensafe entfernt. Bereits übermittelte Kopien sind davon nicht betroffen.', confirmLabel:'Löschen', danger:true,
+      onConfirm(){ S.documents = S.documents.filter(x => x.id !== d.doc); S.log.unshift({ date: today(), text:'Du hast das Dokument „' + doc.name + '“ gelöscht.' }); closeModal(); render(); toast('Dokument gelöscht.'); } });
+  },
+  saveUpload(){
+    const name = $('#up-name').value.trim(); const cat = $('#up-cat').value; const valid = $('#up-valid').value.trim();
+    if (!name){ toast('Bitte gib einen Dokumentnamen an.'); return; }
+    const nd = { id:'d' + Date.now(), personId:S.activePerson, name, cat, ext:'PDF', validUntil: valid, added: today(), lastShared:'', status:'ok' };
+    S.documents.unshift(nd);
+    S.log.unshift({ date: today(), text:'Du hast das Dokument „' + name + '“ hinzugefügt (Demo-Upload, keine echte Datei).' });
+    closeModal(); render(); toast('Dokument hochgeladen. Du findest es in deinem Safe.');
+    const recs = recognizeData(name);
+    if (recs.length){
+      setTimeout(() => openModal({ title:'Folgende Daten wurden erkannt', confirmLabel:'Ausgewählte übernehmen',
+        body:'<p style="font-size:13.5px;color:var(--slate);margin-bottom:12px">FormPilot hat im Dokument Angaben erkannt. Nichts wird ohne deine Bestätigung übernommen.</p>' +
+        recs.map((r,i) => '<label class="check-line" style="padding:7px 0"><input type="checkbox" id="rc-' + i + '"' + (r.f.value ? '' : ' checked') + '><span>' + esc(r.f.label) + ': <b class="mono">' + esc(r.value) + '</b>' + (r.f.value && r.f.value !== r.value ? ' <span style="color:var(--warn)">(bisher: ' + esc(r.f.value) + ')</span>' : '') + '</span></label>').join(''),
+        onConfirm(){
+          let n = 0;
+          recs.forEach((r,i) => { if ($('#rc-' + i).checked){ r.f.value = r.value; r.f.needsReview = false; n++; } });
+          if (n) S.log.unshift({ date: today(), text:n + ' Angabe(n) aus Dokument „' + name + '“ übernommen — von dir bestätigt.' });
+          closeModal(); render(); toast(n ? n + ' Angabe(n) übernommen.' : 'Keine Angaben übernommen.');
+        } }), 350);
+    }
+  },
+
+  /* Anforderung */
+  insertSample(){ S.ui.reqText = SAMPLE_REQUEST; render(); },
+  openSample(){ FP.openCaseReq({ case:'c1' }); },
+  analyze(){
+    const t = $('#req-text').value.trim(); S.ui.reqText = t;
+    if (t.length < 40){ toast('Bitte füge einen längeren Text ein, damit die Prüfung sinnvoll ist.'); return; }
+    S.ui.analysis = analyzeText(t);
+    if (!S.ui.analysis.items.length){ S.ui.analysis = null; toast('Keine bekannten Angaben oder Dokumente im Text erkannt.'); render(); return; }
+    render();
+  },
+  toggleItem(d){ const it = S.ui.analysis.items.find(x => x.key === d.key); it.included = !it.included; render(); },
+  fillItem(d){ S.ui.fillItem = d.key; render(); const i = $('#fill-input'); if (i) i.focus(); },
+  cancelFill(){ S.ui.fillItem = null; render(); },
+  saveFill(d){
+    const it = S.ui.analysis.items.find(x => x.key === d.key);
+    const f = findField(it.fieldId); const v = $('#fill-input').value.trim();
+    const err = validateField(f, v);
+    if (err){ const e = $('#fill-error'); e.textContent = err; e.style.display = 'block'; $('#fill-input').classList.add('invalid'); return; }
+    f.value = v; it.status = 'vorhanden'; it.value = v; it.note = ''; S.ui.fillItem = null;
+    S.log.unshift({ date: today(), text:'Du hast das Profilfeld „' + f.label + '“ hinterlegt.' });
+    render(); toast('Gespeichert. Die Angabe ist jetzt auch in deinem Profil hinterlegt.');
+  },
+  confirmItem(d){
+    const it = S.ui.analysis.items.find(x => x.key === d.key);
+    const f = findField(it.fieldId); f.needsReview = false; it.status = 'vorhanden'; it.value = f.value; it.note = '';
+    S.log.unshift({ date: today(), text:'Du hast die Angabe „' + f.label + '“ bestätigt.' });
+    render(); toast('Angabe bestätigt.');
+  },
+  editInProfile(d){ S.ui.editing = d.field; go('profil'); render(); },
+  acceptDoc(d){
+    const it = S.ui.analysis.items.find(x => x.key === d.key);
+    it.status = 'vorhanden'; it.note = 'Vorhandene Version wird verwendet.'; render();
+  },
+  uploadItem(d){
+    const it = S.ui.analysis.items.find(x => x.key === d.key);
+    it.uploading = true;
+    simulateUpload(() => it, () => {
+      it.uploading = false;
+      let doc = personDocs().find(x => x.name === it.docName);
+      const newValid = it.key === 'immatrikulation' ? '31.03.2027' : '';
+      if (doc){ doc.validUntil = newValid || doc.validUntil; doc.status = 'ok'; doc.added = today(); }
+      else { doc = { id:'d' + Date.now(), personId:S.activePerson, name: it.docName, cat:'Arbeit', ext:'PDF', validUntil:newValid, added: today(), lastShared:'', status:'ok' }; S.documents.unshift(doc); }
+      it.docId = doc.id; it.status = 'vorhanden'; it.note = newValid ? 'Aktuelle Version, gültig bis ' + newValid + '.' : '';
+      S.log.unshift({ date: today(), text:'Du hast das Dokument „' + it.docName + '“ hinzugefügt (Demo-Upload, keine echte Datei).' });
+      toast('Dokument hochgeladen. Du findest es in deinem Safe.');
+    });
+  },
+  declineRequest(){
+    const a = S.ui.analysis;
+    openModal({ title:'Anfrage ablehnen?', body:'Die ' + esc(a.recipient) + ' erhält keine Daten. Der Vorgang wird als abgelehnt markiert.<br><br><span style="color:var(--slate);font-size:13px">Demo: Es wird keine echte Nachricht an den Absender versendet.</span>', confirmLabel:'Anfrage ablehnen', danger:true,
+      onConfirm(){ const c = ensureCase(a); c.status = 'abgelehnt'; c.history.push({ date: today(), text:'Anfrage abgelehnt. Der Absender erhält keine Daten.' }); S.ui.analysis = null; S.ui.reqText = '';
+        S.log.unshift({ date: today(), text:'Du hast die Anfrage der ' + a.recipient + ' abgelehnt. Der Absender erhält keine Daten.' });
+        closeModal(); go('dashboard'); toast('Anfrage abgelehnt. Der Absender erhält keine Daten.'); } });
+  },
+  startShare(){
+    const a = S.ui.analysis;
+    const c = ensureCase(a);
+    S.ui.share = { step:1, caseId:c.id, recipient:a.recipient, purpose:c.purpose, deadline:a.deadline,
+      items: a.items.filter(i => i.included).map(i => ({ key:i.key, label:i.label, type:i.type, fieldId:i.fieldId, docId:i.docId, included:true, sens: i.fieldId ? !!(findField(i.fieldId) || {}).sensitive : false })),
+      suggestedDays: c.suggestedDays || null,
+      expiresDays: c.suggestedDays || 60, expiresDate: addDays(c.suggestedDays || 60), confirmed:false, done:false };
+    go('freigabe');
+  },
+  cancelShare(){ S.ui.share = null; go('anforderung'); },
+  shareBack(){ S.ui.share.step--; render(); },
+  shareNext(){
+    const sh = S.ui.share;
+    if (sh.step === 2){
+      const dl = $('#opt-dl'), pw = $('#opt-pw'), m = $('#opt-msg');
+      if (dl) sh.optDl = dl.checked; if (pw) sh.optPw = pw.checked; if (m) sh.msg = m.value;
+    }
+    sh.step++; render();
+  },
+  toggleShareItem(d){ const it = S.ui.share.items.find(x => x.key === d.key); it.included = !it.included; render(); },
+  editShareItem(d){ S.ui.fillItem = 'share-' + d.key; render(); const i = $('#fill-input'); if (i){ i.focus(); } },
+  saveShareEdit(d){
+    const it = S.ui.share.items.find(x => x.key === d.key);
+    const f = findField(it.fieldId); const v = $('#fill-input').value.trim();
+    const err = validateField(f, v);
+    if (err){ const e = $('#fill-error'); e.textContent = err; e.style.display = 'block'; $('#fill-input').classList.add('invalid'); return; }
+    f.value = v; S.ui.fillItem = null; render(); toast('Gespeichert.');
+  },
+  setExpiry(el){ S.ui.share.expiresDays = +el.value; S.ui.share.expiresDate = addDays(+el.value); render(); },
+  toggleConfirm(el){ S.ui.share.confirmed = el.checked; render(); },
+  sendShare(){
+    const sh = S.ui.share; const inc = sh.items.filter(i => i.included);
+    const dataLabels = inc.filter(i => i.type === 'data').map(i => i.label.replace('Steuer-Identifikationsnummer','Steuer-ID'));
+    const docLabels = inc.filter(i => i.type === 'doc').map(i => i.label);
+    const linkCode = Math.random().toString(36).slice(2,8);
+    sh.link = 'formpilot.app/s/' + linkCode;
+    S.shares.unshift({ id:'s' + Date.now(), personId:S.activePerson, recipient: sh.recipient, lastAccess:'—', data: dataLabels, docs: docLabels, date: today(), expires: sh.expiresDate, status:'aktiv', link: sh.link, optDl: sh.optDl !== false, optPw: !!sh.optPw, msg: sh.msg || '' });
+    for (const it of inc){ if (it.type === 'doc'){ const doc = S.documents.find(x => x.id === it.docId); if (doc) doc.lastShared = sh.recipient; } }
+    if (sh.caseId){ const c = S.cases.find(x => x.id === sh.caseId); if (c){ c.status = 'gesendet'; c.history.push({ date: today(), text:'Unterlagen übermittelt — ' + dataLabels.length + ' Angaben, ' + docLabels.length + ' Dokument(e).' }); } }
+    S.stats.reused += dataLabels.length;
+    for (const it of inc){ if (it.type === 'data' && it.fieldId){ const f = findField(it.fieldId); if (f){ f.uses = (f.uses || 0) + 1; f.lastUsed = 'Zuletzt verwendet: Freigabe an ' + sh.recipient; } } }
+    S.log.unshift({ date: today(), text:'Freigabe an die ' + sh.recipient + ' erstellt (Demo) — ' + dataLabels.length + ' Angaben, ' + docLabels.length + ' Dokument(e). Zugriff bis ' + sh.expiresDate + '.' });
+    sh.done = true; S.ui.analysis = null; S.ui.reqText = '';
+    render(); toast('Freigabe für die ' + sh.recipient + ' erstellt (Demo).');
+  },
+
+  /* Freigaben */
+  revoke(d){
+    const s = S.shares.find(x => x.id === d.share);
+    openModal({ title:'Zugriff widerrufen?', body:'Die ' + esc(s.recipient) + ' kann danach nicht mehr auf deine ' + s.data.length + ' Angaben und ' + s.docs.length + ' Dokument(e) zugreifen. Bereits übermittelte Kopien sind davon nicht betroffen.', confirmLabel:'Widerrufen', danger:true,
+      onConfirm(){ s.status = 'widerrufen'; s.revokedAt = today();
+        S.log.unshift({ date: today(), text:'Freigabe an ' + s.recipient + ' widerrufen. Kein Zugriff mehr möglich.' });
+        closeModal(); render(); toast('Freigabe widerrufen. Die ' + s.recipient + ' hat keinen Zugriff mehr.'); } });
+  },
+
+  /* Sicherheit */
+  change2fa(){
+    openModal({ title:'Zwei-Faktor-Verfahren ändern', confirmLabel:'Speichern',
+      body:'<label class="check-line" style="margin-bottom:12px"><input type="radio" name="tfa" value="Authenticator-App"' + (S.twoFA.method === 'Authenticator-App' ? ' checked' : '') + '><span>Authenticator-App — empfohlen</span></label>' +
+      '<label class="check-line"><input type="radio" name="tfa" value="SMS-Code"' + (S.twoFA.method === 'SMS-Code' ? ' checked' : '') + '><span>SMS-Code an +49 170 1234567</span></label>',
+      onConfirm(){ const r = document.querySelector('input[name=tfa]:checked'); if (r) S.twoFA.method = r.value; closeModal(); render(); toast('Gespeichert.'); } });
+  },
+  logoutDevice(d){
+    const dev = S.devices.find(x => x.id === d.device);
+    openModal({ title:'Gerät abmelden?', body:'„' + esc(dev.name) + '“ wird abgemeldet und muss sich bei der nächsten Nutzung neu anmelden.', confirmLabel:'Abmelden', danger:true,
+      onConfirm(){ S.devices = S.devices.filter(x => x.id !== d.device); S.log.unshift({ date: today(), text:'Du hast das Gerät „' + dev.name + '“ abgemeldet.' }); closeModal(); render(); toast('Gerät abgemeldet.'); } });
+  },
+  exportData(){
+    const data = { exportiertAm: today(), feedback: S.feedback, personen: S.persons, dokumente: S.documents.map(d => ({ name:d.name, kategorie:d.cat, gueltigBis:d.validUntil })), freigaben: S.shares, protokoll: S.log };
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type:'application/json' });
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'formpilot-datenexport.json'; a.click();
+    S.log.unshift({ date: today(), text:'Du hast einen Export deiner Daten heruntergeladen.' });
+    render(); toast('Datenexport erstellt.');
+  },
+  exportFeedback(){
+    const blob = new Blob([JSON.stringify(S.feedback, null, 2)], { type:'application/json' });
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'formpilot-feedback.json'; a.click();
+    toast('Feedback exportiert (' + S.feedback.length + ' Einträge).');
+  },
+  deleteAccount(){
+    openModal({ title:'Konto endgültig löschen?', body:'Alle Angaben, Dokumente und Freigaben werden gelöscht. Aktive Freigaben werden vorher widerrufen. Dieser Schritt kann nicht rückgängig gemacht werden.<br><br><span style="color:var(--slate);font-size:13px">Demo: Die Löschung ist in diesem Prototyp simuliert.</span>', confirmLabel:'Endgültig löschen', danger:true,
+      onConfirm(){ closeModal(); toast('Demo: Die Löschung ist simuliert — es existiert kein echtes Konto.'); } });
+  }
+};
+
+function validateField(f, v){
+  if (!v) return 'Bitte gib einen Wert ein.';
+  if (f.id === 'steuerid'){ const dg = v.replace(/\D/g,''); if (dg.length !== 11) return 'Die Steuer-ID muss 11 Ziffern haben. Aktuell sind es ' + dg.length + '.'; }
+  if (f.id === 'iban'){ const c = v.replace(/\s/g,''); if (!/^DE\d{20}$/i.test(c)) return 'Eine deutsche IBAN beginnt mit DE und hat 22 Stellen. Bitte prüfe deine Eingabe.'; }
+  if (f.id === 'svnr' && v.replace(/\s/g,'').length < 10) return 'Die SV-Nummer ist zu kurz. Bitte prüfe die Eingabe — sie steht auf deinem Sozialversicherungsausweis.';
+  return null;
+}
+
+/* ---------- Helpers: Aufgaben, Szenarien, Vorgänge, Personen ---------- */
+function pageHead(chip, icon, title, sub){
+  return '<div class="page-head head-flex"><span class="fchip fchip-' + chip + '">' + I[icon](20) + '</span><div><h1>' + title + '</h1><p class="page-sub">' + sub + '</p></div></div>';
+}
+const FEATURES = [
+  { chip:'info', icon:'clipboard', t:'Anforderung prüfen', s:'E-Mail einfügen — Checkliste erhalten', act:'newRequest' },
+  { chip:'teal', icon:'archive', t:'Dokumentensafe', s:'Alle Nachweise geordnet an einem Ort', act:'nav', route:'safe' },
+  { chip:'marine', icon:'pencil', t:'Formular ausfüllen', s:'Felder aus deinem Profil übernehmen', act:'openForm' },
+  { chip:'ok', icon:'file', t:'Pakete', s:'Unterlagen bündeln und gezielt teilen', act:'nav', route:'pakete' },
+  { chip:'warn', icon:'user', t:'Angehörige verwalten', s:'Profile für Familie — z. B. Pflegefall', act:'personMenu' },
+  { chip:'solid', icon:'shieldCheck', t:'Freigaben & Sicherheit', s:'Kontrollieren, widerrufen, Protokoll', act:'nav', route:'freigaben' }
+];
+function featureGrid(){
+  return '<div class="card"><div class="card-head"><h3>Das kannst du hier tun</h3></div><div class="fn-grid" style="margin-top:8px">' +
+    FEATURES.map(f => '<div class="fn-tile" data-act="' + f.act + '"' + (f.route ? ' data-route="' + f.route + '"' : '') + '><span class="fchip fchip-' + f.chip + '">' + I[f.icon](20) + '</span><span class="t">' + f.t + '</span><span class="s">' + f.s + '</span></div>').join('') + '</div></div>';
+}
+function personName(pid){ const x = S.persons.find(y => y.id === pid); return x ? x.name : ''; }
+function personChips(){
+  return '<div class="person-chips">' + S.persons.map(pp =>
+    '<button class="chip' + (pp.id === S.activePerson ? ' active' : '') + '" data-act="switchPerson" data-person="' + pp.id + '">' + esc(pp.name) + (pp.relation !== 'Ich' ? ' · ' + esc(pp.relation) : '') + '</button>').join('') +
+    '<button class="chip" data-act="addPerson">+ Person hinzufügen</button></div>';
+}
+function caseBadge(c){
+  if (c.status === 'offen') return badge('warn','Offen');
+  if (c.status === 'teilweise') return badge('info','Teilweise erledigt');
+  if (c.status === 'gesendet') return badge('ok','Gesendet');
+  if (c.status === 'abgelehnt') return badge('neutral','Abgelehnt');
+  return badge('neutral', c.status);
+}
+function ensureCase(a){
+  let c = a.caseId ? S.cases.find(x => x.id === a.caseId) : null;
+  if (!c) c = S.cases.find(x => x.recipient === a.recipient && x.status !== 'gesendet' && x.status !== 'abgelehnt');
+  if (!c){
+    c = { id:'c' + Date.now(), personId:S.activePerson, title:'Anforderung — ' + a.recipient, recipient:a.recipient, purpose:'Angeforderte Unterlagen', deadline:a.deadline || '', status:'offen', notes:'', reqText:S.ui.reqText || '', history:[{ date: today(), text:'Anforderung geprüft und als Vorgang gespeichert.' }] };
+    S.cases.unshift(c);
+  }
+  return c;
+}
+function caseAnalysis(c){
+  if (!c.reqText) return null;
+  const keep = S.activePerson; S.activePerson = c.personId;
+  const a = analyzeText(c.reqText);
+  S.activePerson = keep;
+  return a;
+}
+function computeTasks(){
+  const t = [];
+  for (const c of S.cases){
+    if (c.status !== 'offen' && c.status !== 'teilweise') continue;
+    const d = daysUntil(c.deadline);
+    t.push({ prio: d !== null && d <= 14 ? 'dringend' : 'hoch', text:'Vorgang „' + c.title + '“' + (c.deadline ? ' — Frist ' + c.deadline : ''), act:'openCase', id:c.id });
+  }
+  for (const pp of S.persons) for (const g of pp.profile) for (const f of g.fields){
+    if (!f.value && !/optional/i.test(f.label)) t.push({ prio:'mittel', text:f.label + ' fehlt (' + firstName(pp) + ')', act:'goProfil', person:pp.id });
+    else if (f.needsReview) t.push({ prio:'mittel', text:f.label + ' bestätigen (' + firstName(pp) + ')', act:'goProfil', person:pp.id });
+  }
+  for (const k of S.conflicts) t.push({ prio:'hoch', text:'Datenkonflikt: ' + k.text.replace('deinem Profil','Profil (' + firstName(S.persons.find(x=>x.id===k.personId)) + ')'), act:'goProfil', person:k.personId });
+  for (const d of S.documents){
+    const dd = d.validUntil ? daysUntil(d.validUntil) : null;
+    if (dd !== null && dd <= 45) t.push({ prio: dd < 0 ? 'hoch' : 'mittel', text:'„' + d.name + '“ läuft am ' + d.validUntil + ' ab', act:'nav', route:'safe' });
+  }
+  for (const s of S.shares){
+    if (s.status !== 'aktiv') continue;
+    const dd = daysUntil(s.expires);
+    if (dd !== null && dd <= 14) t.push({ prio:'niedrig', text:'Freigabe an ' + s.recipient + ' läuft am ' + s.expires + ' ab', act:'nav', route:'freigaben' });
+  }
+  const order = { dringend:0, hoch:1, mittel:2, niedrig:3 };
+  return t.sort((a,b) => order[a.prio] - order[b.prio]).slice(0,6);
+}
+const SCENARIOS = [
+  { name:'Arbeitgeber', fields:['steuerid','svnr','iban','krankenkasse','adresse','geburtsdatum'] },
+  { name:'Bewerbung', fields:['vorname','nachname','email','telefon','adresse'] },
+  { name:'Uni / Studium', fields:['matrikelnr','studiengang','krankenkasse','geburtsdatum'] },
+  { name:'Wohnung', fields:['adresse','email','telefon','iban'] },
+  { name:'Pflege / Familie', fields:['pflegegrad','pflegekasse','aktenzeichen','rentenvnr','geburtsdatum'] }
+];
+function scenarioRows(max){
+  const rows = [];
+  for (const sc of SCENARIOS){
+    const rel = sc.fields.filter(id => findField(id) !== null);
+    if (rel.length < 3) continue;
+    const filled = rel.filter(id => { const f = findField(id); return f && f.value && !f.needsReview; });
+    const pct = Math.round(filled.length / rel.length * 100);
+    const missing = rel.filter(id => !filled.includes(id)).map(id => findField(id).label);
+    rows.push('<div class="kv"><div class="kv-top"><div class="kv-label">' + sc.name + '</div>' +
+      '<div class="kv-value"><div class="mini-progress"><div class="progress"><div style="width:' + pct + '%"></div></div><span style="font-size:13px;font-weight:600;color:' + (pct === 100 ? 'var(--ok)' : 'var(--slate)') + '">' + pct + ' %</span></div>' +
+      (missing.length ? '<div class="kv-help">Es fehlt: ' + esc(missing.join(', ')) + '</div>' : '') + '</div></div></div>');
+    if (rows.length >= max) break;
+  }
+  return rows.join('') || '<p class="meta">Keine passenden Szenarien für dieses Profil.</p>';
+}
+function detectDoc(fname){
+  const n = fname.toLowerCase();
+  if (/immatrikulation|studienbescheinigung/.test(n)) return { cat:'Bildung', valid:'31.03.2027' };
+  if (/ausweis|reisepass|pass\b/.test(n)) return { cat:'Ausweise', valid:'08.11.2030' };
+  if (/vollmacht|betreuung|patientenverf/.test(n)) return { cat:'Familie', valid:'' };
+  if (/lebenslauf|cv/.test(n)) return { cat:'Arbeit', valid:'' };
+  if (/miet/.test(n)) return { cat:'Wohnen', valid:'' };
+  if (/versicherung|police|haftpflicht/.test(n)) return { cat:'Versicherung', valid:'' };
+  if (/pflege|bescheid|arzt/.test(n)) return { cat:'Gesundheit', valid:'' };
+  if (/sozialversicherung|sv[-_ ]?ausweis|gehalt|lohn/.test(n)) return { cat:'Arbeit', valid:'' };
+  if (/konto|iban|bank/.test(n)) return { cat:'Bank', valid:'' };
+  return null;
+}
+const PKG_TEMPLATES = [
+  { name:'Bewerbung', docs:['Lebenslauf'], fields:['vorname','nachname','email','telefon','adresse'] },
+  { name:'Arbeitsbeginn', docs:['Personalausweis','Immatrikulationsbescheinigung'], fields:['steuerid','svnr','iban','krankenkasse'] },
+  { name:'Wohnungssuche', docs:['Personalausweis','Versicherungsnachweis Haftpflicht'], fields:['vorname','nachname','email','telefon'] },
+  { name:'Pflegeantrag', docs:['Pflegegrad-Bescheid','Vorsorgevollmacht'], fields:['pflegegrad','pflegekasse','aktenzeichen','rentenvnr'] }
+];
+
+/* ---------- Login & Onboarding ---------- */
+VIEWS.login = function(){
+  const step = S.ui.loginStep || 1;
+  if (step === 2){
+    return '<div class="login-wrap"><div class="login-logo"><img src="formpilot_logo.svg" alt="FormPilot"></div>' +
+      '<div class="card" style="padding:28px"><h2 style="margin-bottom:4px">Bestätigung</h2><p class="meta" style="margin-bottom:20px">Gib den 6-stelligen Code aus deiner Authenticator-App ein.</p>' +
+      '<div class="field"><label for="login-code">Sicherheitscode</label><input type="text" id="login-code" class="mono" placeholder="123456" maxlength="6">' +
+      '<div class="help">Demo: jeder 6-stellige Code funktioniert.</div>' +
+      '<div class="error-text" id="login-error" style="display:none">Der Code muss 6 Ziffern haben.</div></div>' +
+      '<button class="btn btn-primary" style="width:100%" data-act="loginCode">Bestätigen</button>' +
+      '<div style="text-align:center;margin-top:14px"><button class="link-btn" data-act="loginBack">Zurück</button></div></div>' +
+      '<div class="sec-note" style="justify-content:center">' + I.shield(16) + '<span>Demo-Anmeldung: Der Code wird nicht geprüft und nichts wird übertragen.</span></div></div>';
+  }
+  return '<div style="max-width:560px;margin:7vh auto 0">' +
+    '<div class="login-logo" style="text-align:left;margin-bottom:18px"><img src="formpilot_logo.svg" style="width:190px" alt="FormPilot — Dokumente. Daten. Freigaben."></div>' +
+    '<h1 style="margin-bottom:10px">Unterlagen einmal ordnen.<br>Nie wieder suchen.</h1>' +
+    '<p style="font-size:16px;margin-bottom:18px">FormPilot hilft dir, persönliche Daten und Dokumente für Bewerbungen, Arbeitgeber, Uni, Wohnung, Versicherungen oder Pflegefälle geordnet vorzubereiten und sicher freizugeben.</p>' +
+    [['teal','archive','Dokumente zentral organisieren'],['marine','user','Wiederkehrende Angaben einmal speichern'],['info','clipboard','Vorgänge mit Checklisten vorbereiten'],['ok','file','Unterlagen als Paket zusammenstellen'],['solid','shieldCheck','Freigaben kontrollieren und jederzeit widerrufen']].map(x =>
+      '<div style="display:flex;gap:11px;align-items:center;padding:5px 0;font-size:14.5px;color:var(--ink)"><span class="fchip fchip-' + x[0] + '" style="width:32px;height:32px;border-radius:8px">' + I[x[1]](16) + '</span>' + x[2] + '</div>').join('') +
+    '<div class="card" style="margin-top:22px;padding:24px">' +
+    '<button class="btn btn-primary" style="width:100%" data-act="demoStart">Demo starten — mit Beispieldaten</button>' +
+    '<p class="help" style="text-align:center;margin-top:10px">Dauert 5 Minuten. Kein Konto nötig, nichts wird gesendet.</p>' +
+    '<div style="border-top:1px solid var(--line);margin-top:16px;padding-top:16px">' +
+    '<div class="field" style="margin-bottom:14px"><label for="login-email">E-Mail</label><input type="email" id="login-email" value="mauricewollmer@gmail.com"></div>' +
+    '<div class="field" style="margin-bottom:14px"><label for="login-pw">Passwort</label><input type="password" id="login-pw" placeholder="Demo: beliebige Eingabe">' +
+    '<div class="error-text" id="login-error" style="display:none">Die eingegebenen Zugangsdaten stimmen nicht.</div></div>' +
+    '<button class="btn btn-secondary" style="width:100%" data-act="loginSubmit">Anmelden (Demo mit Zwei-Faktor)</button>' +
+    '<div style="display:flex;justify-content:space-between;margin-top:12px"><button class="link-btn" data-act="forgotPw">Passwort vergessen?</button><button class="link-btn" data-act="registerInfo">Konto erstellen</button></div></div></div>' +
+    '<div class="info-banner" style="margin-top:16px">' + I.info(18) + '<span><b>Frühe Testversion.</b> Bitte keine echten sensiblen Daten eingeben (Steuer-ID, Ausweisnummer, IBAN, Gesundheitsdaten). Alles bleibt in deinem Browser.</span></div>' +
+    '<div class="sec-note" style="justify-content:center">' + I.shield(16) + '<span>Du entscheidest, was geteilt wird. Nichts wird automatisch gesendet. Jede Freigabe ist widerrufbar.</span></div>' +
+    '<div style="text-align:center;margin:10px 0 40px"><button class="link-btn" data-act="navGate" data-route="datenschutz">Datenschutz & DSGVO</button></div></div>';
+};
+const GOALS = [
+  ['Bewerbung','Lebenslauf, Zeugnisse, Bewerbungspaket'],
+  ['Arbeitgeber-Onboarding','Steuer-ID, SV-Nummer, Bankverbindung'],
+  ['Studium / Uni','Immatrikulation, BAföG, Nachweise'],
+  ['Wohnung / Vermieter','Bewerbermappe und Nachweise'],
+  ['Versicherung','Nachweise und Verträge'],
+  ['Pflege / Familie','Unterlagen für Angehörige verwalten'],
+  ['Dokumente verwalten','Alles an einem sicheren Ort'],
+  ['Ich weiß es noch nicht','Einfach umsehen']
+];
+const GOAL_ACTIONS = {
+  'Bewerbung': { text:'Erstelle dein Bewerbungspaket — Lebenslauf und Kontaktdaten sind schon vorbereitet.', act:'nav', route:'pakete', btn:'Zu den Paketen' },
+  'Arbeitgeber-Onboarding': { text:'Öffne den Vorgang „Arbeitgeber-Onboarding“ — die Muster GmbH wartet auf 5 Unterlagen.', act:'openCase', id:'c1', btn:'Vorgang öffnen' },
+  'Studium / Uni': { text:'Deine Immatrikulationsbescheinigung läuft bald ab — sieh sie dir im Dokumentensafe an.', act:'nav', route:'safe', btn:'Zum Dokumentensafe' },
+  'Wohnung / Vermieter': { text:'Stelle ein Wohnungs-Paket zusammen: Ausweis und Haftpflichtnachweis liegen schon im Safe.', act:'nav', route:'pakete', btn:'Paket erstellen' },
+  'Versicherung': { text:'Sieh dir deine aktive Freigabe an die Krankenkasse an — inklusive Widerruf.', act:'nav', route:'freigaben', btn:'Zu den Freigaben' },
+  'Pflege / Familie': { text:'Wechsle zum Profil von Heinz Wollmer und öffne den Pflege-Vorgang.', act:'openCase', id:'c2', btn:'Pflege-Vorgang öffnen' },
+  'Dokumente verwalten': { text:'Lade dein erstes Dokument hoch — oder lies eine Karte per Foto ein.', act:'nav', route:'safe', btn:'Zum Dokumentensafe' },
+  'Ich weiß es noch nicht': { text:'Starte mit dem offenen Vorgang „Arbeitgeber-Onboarding“ — er zeigt den Kern von FormPilot.', act:'openCase', id:'c1', btn:'Vorgang öffnen' }
+};
+VIEWS.onboarding = function(){
+  const step = S.onboarding.step || 0;
+  let inner, primary;
+  if (step === 0){
+    inner = '<h2>Wofür möchtest du FormPilot zuerst nutzen?</h2><p class="meta" style="margin:6px 0 20px">Davon hängt ab, welche Angaben dir zuerst vorgeschlagen werden. Du kannst das jederzeit ändern.</p>' +
+      '<div class="goal-grid">' + GOALS.map(g => '<div class="goal-card' + (S.onboarding.goal === g[0] ? ' sel' : '') + '" data-act="onbGoal" data-goal="' + g[0] + '">' + g[0] + '<span class="sub">' + g[1] + '</span></div>').join('') + '</div>';
+    primary = '<button class="btn btn-primary" data-act="onbNext"' + (S.onboarding.goal ? '' : ' disabled') + '>Weiter</button>';
+  } else if (step === 1){
+    inner = '<h2>Deine Daten — du entscheidest.</h2><p class="meta" style="margin:6px 0 16px">So arbeitet FormPilot:</p>' +
+      ['Du entscheidest, welche Daten gespeichert werden.','Du entscheidest bei jeder Anfrage einzeln, was geteilt wird.','Keine automatische Weitergabe — nichts wird ohne deine Bestätigung gesendet.','Jede Freigabe hat ein Ablaufdatum und ist jederzeit widerrufbar.'].map(x =>
+      '<div class="row"><div class="ci-status ci-ok">' + I.check(15) + '</div><div class="grow" style="font-size:14.5px;color:var(--ink)">' + x + '</div></div>').join('');
+    primary = '<button class="btn btn-primary" data-act="onbNext">Weiter</button>';
+  } else {
+    inner = '<h2>Startklar.</h2><p class="meta" style="margin:6px 0 16px">Für die Demo sind Beispieldaten hinterlegt: dein Profil, 5 Dokumente und ein verwaltetes Profil für Heinz Wollmer (Großvater, Vorsorgevollmacht).</p>' +
+      '<div class="info-banner">' + I.info(18) + '<span>Hinterlege deine Daten einmal — FormPilot bereitet damit künftige Anforderungen vor. Erster Vorschlag für dich: <b>' + esc(S.onboarding.goal || 'Dokumente verwalten') + '</b>.</span></div>' +
+      '<div class="card" style="margin-top:16px;border-color:var(--teal);box-shadow:none"><div class="card-head"><h3>Schneller als Tippen</h3>' + badge('teal','Empfohlen') + '</div>' +
+      '<p style="font-size:14px">Fülle dein Profil per Foto oder Datei — FormPilot liest z. B. eine Karte oder einen Ausweis und schlägt die Angaben zur Übernahme vor.</p>' +
+      '<div class="card-actions" style="justify-content:flex-start"><button class="btn btn-secondary btn-sm" data-act="onbExtract" data-src="cam">Foto aufnehmen</button>' +
+      '<button class="btn btn-secondary btn-sm" data-act="onbExtract" data-src="file">Datei auswählen</button></div></div>' +
+      '<div class="sec-note">' + I.shield(16) + '<span>Beta-Test: Bitte gib keine echten sensiblen Daten ein (IBAN, Ausweisnummern). Alles bleibt nur in deinem Browser — es gibt keinen Server-Speicher.</span></div>';
+    primary = '<button class="btn btn-primary" data-act="onbFinish">Zum Dashboard</button>';
+  }
+  return '<div style="max-width:640px;margin:6vh auto 0"><div class="login-logo" style="text-align:left;margin-bottom:20px"><img src="formpilot_logo.svg" style="width:168px" alt="FormPilot"></div>' +
+    '<div class="progress-wrap"><div class="progress-label"><span>Schritt ' + (step+1) + ' von 3</span><span>' + (step+1) + '/3</span></div><div class="progress"><div style="width:' + Math.round((step+1)/3*100) + '%"></div></div></div>' +
+    '<div class="card" style="padding:28px">' + inner + '</div>' +
+    '<div class="card-actions" style="justify-content:space-between;margin-top:18px"><button class="link-btn" data-act="onbFinish">Überspringen</button>' + primary + '</div></div>';
+};
+
+/* ---------- Vorgänge ---------- */
+VIEWS.vorgaenge = function(){
+  return pageHead('info','clipboard','Deine Vorgänge','Jede Anforderung als Vorgang — mit Checkliste, Frist und Verlauf.') +
+    '<div class="cards">' + S.cases.map(c => {
+      const a = caseAnalysis(c);
+      const done = a ? a.items.filter(i => i.status === 'vorhanden').length : 0;
+      const total = a ? a.items.length : 0;
+      return '<div class="card" style="cursor:pointer" data-act="openCase" data-case="' + c.id + '"><div class="card-head"><h3>' + esc(c.title) + '</h3>' + caseBadge(c) + '</div>' +
+        '<div class="meta">' + esc(personName(c.personId)) + ' · ' + esc(c.recipient) + (c.deadline ? ' · Frist ' + c.deadline : '') + '</div>' +
+        (total ? '<div class="mini-progress" style="margin-top:12px;max-width:340px"><div class="progress"><div style="width:' + Math.round(done/total*100) + '%"></div></div><span style="font-size:13px;color:var(--slate)">' + done + ' von ' + total + ' erledigt</span></div>' : '') +
+        '</div>';
+    }).join('') + '</div>' +
+    '<div class="card-actions" style="justify-content:flex-start;margin-top:20px;gap:10px"><button class="btn btn-primary" data-act="newRequest">Neue Anforderung prüfen</button>' +
+    '<button class="btn btn-secondary" data-act="openForm">Formular ausfüllen</button></div>' +
+    '<div class="sec-note">' + I.shield(16) + '<span>Vorgänge bündeln Anforderung, Unterlagen und Freigaben — nichts wird ohne dich gesendet.</span></div>';
+};
+VIEWS.vorgang = function(){
+  const c = S.cases.find(x => x.id === S.ui.caseId);
+  if (!c) return VIEWS.vorgaenge();
+  const a = caseAnalysis(c);
+  const open = c.status === 'offen' || c.status === 'teilweise';
+  return '<div class="page-head"><h1>' + esc(c.title) + '</h1><p class="page-sub">' + esc(personName(c.personId)) + ' · ' + esc(c.recipient) + '</p></div>' +
+    '<div class="sum-block"><div class="sum-head">Vorgang</div>' +
+    '<div class="sum-item"><span class="l">Zweck</span><span class="r">' + esc(c.purpose) + '</span></div>' +
+    '<div class="sum-item"><span class="l">Frist</span><span class="r">' + (c.deadline || '—') + '</span></div>' +
+    '<div class="sum-item"><span class="l">Status</span><span class="r">' + caseBadge(c) + '</span></div>' +
+    (c.prefilled ? '<div class="sum-item"><span class="l">Bereits übermittelt</span><span class="r" style="font-weight:400">' + c.prefilled.map(esc).join('<br>') + '</span></div>' : '') + '</div>' +
+    (c.prefilled ? '<div class="info-banner" style="margin-bottom:16px">' + I.info(18) + '<span>Diese Angaben wurden bei der Buchung bereits übermittelt — du musst sie nicht erneut senden. Es fehlen nur die Dokumente für die Übergabe.</span></div>' : '') +
+    (a ? '<div class="card" style="padding:6px 24px;margin-bottom:16px">' + a.items.map(it => {
+      const m = STATUS_META[it.status];
+      return '<div class="row"><div class="ci-status ' + m.cls + '">' + I[m.icon](15) + '</div><div class="grow"><div class="title" style="font-size:14.5px">' + esc(it.label) + '</div></div>' + badge(m.b, m.label) + '</div>';
+    }).join('') + '</div>' : '') +
+    '<div class="card" style="margin-bottom:16px"><div class="card-head"><h3>Verlauf</h3></div><table><tr><th style="width:110px">Datum</th><th>Ereignis</th></tr>' +
+    c.history.slice().reverse().map(x => '<tr><td class="mono">' + x.date + '</td><td>' + esc(x.text) + '</td></tr>').join('') + '</table></div>' +
+    '<div class="card"><div class="card-head"><h3>Notizen</h3></div>' +
+    '<textarea id="case-notes" style="min-height:80px" placeholder="Eigene Notizen zum Vorgang …">' + esc(c.notes) + '</textarea>' +
+    '<div class="card-actions"><button class="btn btn-secondary btn-sm" data-act="saveCaseNotes" data-case="' + c.id + '">Notizen speichern</button></div></div>' +
+    '<div class="card-actions" style="justify-content:space-between;margin-top:20px"><button class="btn btn-secondary" data-act="nav" data-route="vorgaenge">Zurück zur Übersicht</button>' +
+    (open ? '<div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn btn-secondary" data-act="casePkg" data-case="' + c.id + '">Paket vorbereiten</button>' +
+      '<button class="btn btn-primary" data-act="openCaseReq" data-case="' + c.id + '">Anforderung öffnen & prüfen</button></div>' :
+      '<button class="btn btn-secondary" data-act="nav" data-route="freigaben">Zur Freigaben-Übersicht</button>') + '</div>';
+};
+
+/* ---------- Pakete ---------- */
+VIEWS.pakete = function(){
+  const d = S.ui.pkgDraft;
+  let draft = '';
+  if (d){
+    const docs = personDocs();
+    const fields = [];
+    for (const g of P().profile) for (const f of g.fields) if (f.value) fields.push(f);
+    draft = '<div class="card" style="margin-bottom:16px"><div class="card-head"><h3>Neues Paket — ' + esc(P().name) + '</h3></div>' +
+      '<div class="field"><label for="pkg-name">Name des Pakets</label><input type="text" id="pkg-name" value="' + esc(d.name) + '"></div>' +
+      '<h4 style="margin:14px 0 4px">Dokumente</h4>' +
+      docs.map(x => '<label class="check-line" style="padding:7px 0"><input type="checkbox" data-act="pkgToggleDoc" data-doc="' + x.id + '"' + (d.docIds.includes(x.id) ? ' checked' : '') + '><span>' + esc(x.name) + ' <span style="color:var(--grayblue);font-size:12.5px">' + esc(x.cat) + '</span></span></label>').join('') +
+      '<h4 style="margin:16px 0 4px">Angaben</h4>' +
+      fields.map(f => '<label class="check-line" style="padding:7px 0"><input type="checkbox" data-act="pkgToggleField" data-field="' + f.id + '"' + (d.fieldIds.includes(f.id) ? ' checked' : '') + '><span>' + esc(f.label) + (f.sensitive ? ' ' + badge('warn','Sensibel') : '') + '</span></label>').join('') +
+      '<div class="field" style="margin-top:16px"><label for="pkg-note">Notiz (optional)</label><input type="text" id="pkg-note" value="' + esc(d.note) + '"></div>' +
+      '<div class="card-actions"><button class="btn btn-secondary" data-act="cancelPkg">Abbrechen</button><button class="btn btn-primary" data-act="savePkg">Paket erstellen</button></div></div>';
+  }
+  return pageHead('ok','file','Dokumentenpakete','Einmal zusammengestellt, gezielt freigegeben — statt jedes Mal einzelne Dateien zu suchen.') +
+    personChips() +
+    (d ? draft :
+    '<div class="card" style="margin-bottom:16px"><div class="card-head"><h3>Neues Paket aus Vorlage</h3></div>' +
+    '<div class="chips" style="margin:6px 0 4px">' + PKG_TEMPLATES.map((t,i) => '<button class="chip" data-act="newPkg" data-tpl="' + i + '">' + t.name + '</button>').join('') +
+    '<button class="chip" data-act="newPkg" data-tpl="-1">Leeres Paket</button></div>' +
+    '<p class="help">Vorlagen wählen passende Dokumente und Angaben vor — du bestätigst die Auswahl.</p></div>') +
+    (S.packages.filter(pk => pk.personId === S.activePerson).length ? '' :
+    '<div class="card" style="text-align:center;padding:36px 16px"><h4>Noch keine Pakete für ' + esc(firstName(P())) + '</h4><p class="meta" style="margin-top:6px">Wähle oben eine Vorlage — zum Beispiel „Bewerbung“ oder „Arbeitsbeginn“.</p></div>') +
+    '<div class="cards">' + S.packages.filter(pk => pk.personId === S.activePerson).map(pk => {
+      const docs = pk.docIds.map(id => S.documents.find(x => x.id === id)).filter(Boolean);
+      const sens = pk.fieldIds.some(id => { const f = findField(id); return f && f.sensitive; });
+      return '<div class="card"><div class="card-head"><h3>' + esc(pk.name) + '</h3>' + (sens ? badge('warn','Enthält sensible Daten') : badge('teal','Paket')) + '</div>' +
+        '<div class="meta">' + docs.length + ' Dokumente, ' + pk.fieldIds.length + ' Angaben · erstellt am ' + pk.created + (pk.note ? ' · ' + esc(pk.note) : '') + '</div>' +
+        '<div style="margin-top:10px;font-size:14px"><span style="color:var(--slate)">Dokumente:</span> ' + (docs.map(x => esc(x.name)).join(', ') || '—') + '</div>' +
+        '<div style="font-size:14px"><span style="color:var(--slate)">Angaben:</span> ' + (pk.fieldIds.map(id => { const f = findField(id); return f ? esc(f.label) : ''; }).filter(Boolean).join(', ') || '—') + '</div>' +
+        '<div class="card-actions"><button class="btn btn-secondary btn-sm" data-act="pkgPreview" data-pkg="' + pk.id + '">' + I.eye(15) + 'Vorschau</button>' +
+        '<button class="btn btn-secondary btn-sm" data-act="pkgDownload" data-pkg="' + pk.id + '">' + I.download(15) + 'Sammelmappe</button>' +
+        '<button class="btn btn-secondary btn-sm" data-act="pkgShare" data-pkg="' + pk.id + '">' + I.send(15) + 'Freigeben</button>' +
+        '<button class="btn btn-danger btn-sm" data-act="pkgDelete" data-pkg="' + pk.id + '">Löschen</button></div></div>';
+    }).join('') + '</div>' +
+    '<div class="sec-note">' + I.shield(16) + '<span>Ein Paket teilt nichts von selbst. Jede Freigabe durchläuft den Prüf- und Bestätigungsprozess.</span></div>';
+};
+
+/* ---------- Suche ---------- */
+VIEWS.suche = function(){
+  const q = (S.ui.search || '').toLowerCase().trim();
+  const searchBox = '<div class="card" style="padding:14px 16px;margin-bottom:16px"><input type="text" id="page-search" placeholder="Suchen — dann Enter drücken" value="' + esc(S.ui.search) + '"></div>';
+  const chips = '<div class="chips" style="margin-top:0">' + ['Was läuft bald ab?','Steuer','Opa Pflege','Immatrikulation','IBAN'].map(x => '<button class="chip" data-act="quickSearch" data-q="' + x + '">' + x + '</button>').join('') + '</div>';
+  if (!q) return '<div class="page-head"><h1>Suche</h1><p class="page-sub">Suche nach Dokumenten, Angaben, Vorgängen, Paketen und Freigaben.</p></div>' + searchBox + chips + '<div class="card"><p class="meta">Gib oben links einen Suchbegriff ein — oder wähle einen Vorschlag.</p></div>';
+  if (/läuft.*ab|ablauf/.test(q)){
+    const exp = S.documents.filter(d => d.validUntil && daysUntil(d.validUntil) !== null && daysUntil(d.validUntil) <= 90);
+    const shs = S.shares.filter(s => s.status === 'aktiv' && daysUntil(s.expires) !== null && daysUntil(s.expires) <= 90);
+    return '<div class="page-head"><h1>Suche</h1><p class="page-sub">Das läuft in den nächsten 90 Tagen ab:</p></div>' + searchBox + chips +
+      '<div class="cards"><div class="card"><div class="card-head"><h3>Dokumente (' + exp.length + ')</h3></div>' +
+      (exp.map(d => '<div class="row"><div class="doc-icon">' + esc(d.ext) + '</div><div class="grow"><div class="title">' + esc(d.name) + '</div><div class="sub">' + esc(personName(d.personId)) + '</div></div>' + badge('warn','Läuft ab am ' + d.validUntil) + '</div>').join('') || '<p class="meta">Nichts.</p>') + '</div>' +
+      '<div class="card"><div class="card-head"><h3>Freigaben (' + shs.length + ')</h3></div>' +
+      (shs.map(s => '<div class="row"><div class="grow"><div class="title">' + esc(s.recipient) + '</div></div>' + badge('warn','Läuft ab am ' + s.expires) + '</div>').join('') || '<p class="meta">Nichts.</p>') + '</div></div>';
+  }
+  const docs = S.documents.filter(d => (d.name + ' ' + d.cat).toLowerCase().includes(q));
+  const fields = [];
+  for (const pp of S.persons) for (const g of pp.profile) for (const f of g.fields)
+    if ((f.label + ' ' + f.value).toLowerCase().includes(q)) fields.push({ p:pp, f });
+  const cases = S.cases.filter(c => (c.title + ' ' + c.recipient + ' ' + c.purpose).toLowerCase().includes(q));
+  const shares = S.shares.filter(s => (s.recipient + ' ' + s.data.join(' ') + ' ' + s.docs.join(' ')).toLowerCase().includes(q));
+  const pkgs = S.packages.filter(pk => pk.name.toLowerCase().includes(q));
+  const total = docs.length + fields.length + cases.length + shares.length + pkgs.length;
+  let out = '<div class="page-head"><h1>Suche</h1><p class="page-sub">' + total + ' Treffer für „' + esc(S.ui.search) + '“.</p></div>' + searchBox + chips + '<div class="cards">';
+  if (docs.length) out += '<div class="card"><div class="card-head"><h3>Dokumente (' + docs.length + ')</h3></div>' + docs.map(d =>
+    '<div class="row" style="cursor:pointer" data-act="searchDoc" data-person="' + (d.personId||'maurice') + '"><div class="doc-icon">' + esc(d.ext) + '</div><div class="grow"><div class="title">' + esc(d.name) + '</div><div class="sub">' + esc(personName(d.personId)) + ' · ' + esc(d.cat) + '</div></div>' + I.chevron(16) + '</div>').join('') + '</div>';
+  if (fields.length) out += '<div class="card"><div class="card-head"><h3>Angaben (' + fields.length + ')</h3></div>' + fields.map(x =>
+    '<div class="row" style="cursor:pointer" data-act="goProfil" data-person="' + x.p.id + '"><div class="grow"><div class="title">' + esc(x.f.label) + '</div><div class="sub">' + esc(x.p.name) + (x.f.value ? ' · ' + esc(x.f.value) : ' · noch nicht hinterlegt') + '</div></div>' + I.chevron(16) + '</div>').join('') + '</div>';
+  if (cases.length) out += '<div class="card"><div class="card-head"><h3>Vorgänge (' + cases.length + ')</h3></div>' + cases.map(c =>
+    '<div class="row" style="cursor:pointer" data-act="openCase" data-case="' + c.id + '"><div class="grow"><div class="title">' + esc(c.title) + '</div><div class="sub">' + esc(c.recipient) + '</div></div>' + caseBadge(c) + '</div>').join('') + '</div>';
+  if (pkgs.length) out += '<div class="card"><div class="card-head"><h3>Pakete (' + pkgs.length + ')</h3></div>' + pkgs.map(pk =>
+    '<div class="row" style="cursor:pointer" data-act="nav" data-route="pakete"><div class="grow"><div class="title">' + esc(pk.name) + '</div><div class="sub">' + esc(personName(pk.personId)) + '</div></div>' + I.chevron(16) + '</div>').join('') + '</div>';
+  if (shares.length) out += '<div class="card"><div class="card-head"><h3>Freigaben (' + shares.length + ')</h3></div>' + shares.map(s =>
+    '<div class="row" style="cursor:pointer" data-act="nav" data-route="freigaben"><div class="grow"><div class="title">' + esc(s.recipient) + '</div><div class="sub">' + s.date + '</div></div>' + shareBadge(s) + '</div>').join('') + '</div>';
+  if (!total) out += '<div class="card"><p class="meta">Keine Treffer. Tipp: Suche nach Dokumentname, Person, Empfänger oder Feldname — zum Beispiel „Steuer-ID“ oder „Opa Pflege“.</p></div>';
+  return out + '</div>';
+};
+
+/* ---------- Neue Aktionen ---------- */
+Object.assign(FP, {
+  /* Login / Onboarding */
+  loginSubmit(){
+    const pw = $('#login-pw').value;
+    if (!pw){ $('#login-error').style.display = 'block'; $('#login-pw').classList.add('invalid'); return; }
+    S.ui.loginStep = 2; render();
+  },
+  loginCode(){
+    const c = $('#login-code').value.replace(/\D/g,'');
+    if (c.length !== 6){ $('#login-error').style.display = 'block'; $('#login-code').classList.add('invalid'); return; }
+    S.auth.loggedIn = true; S.ui.loginStep = 1;
+    S.log.unshift({ date: today(), text:'Anmeldung in der Demo (Zwei-Faktor simuliert).' });
+    render();
+  },
+  loginBack(){ S.ui.loginStep = 1; render(); },
+  forgotPw(){ openModal({ title:'Passwort zurücksetzen', body:'Du erhältst einen Link zum Zurücksetzen per E-Mail an mauricewollmer@gmail.com.<br><br><span style="color:var(--slate);font-size:13px">Demo: Der Versand ist simuliert.</span>', confirmLabel:'Link senden', onConfirm(){ closeModal(); toast('Demo: Der Versand ist simuliert — es wird keine E-Mail verschickt.'); } }); },
+  registerInfo(){ openModal({ title:'Konto erstellen', body:'In der Demo ist bereits ein Konto für Maurice Wollmer eingerichtet. Die Registrierung mit E-Mail-Verifizierung ist im Prototyp simuliert.', cancelLabel:'Verstanden' }); },
+  logout(){ S.auth.loggedIn = false; S.ui.loginStep = 1; closeModal(); render(); },
+  onbGoal(d){ S.onboarding.goal = d.goal; render(); },
+  onbNext(){ S.onboarding.step = (S.onboarding.step || 0) + 1; render(); },
+  onbFinish(){ S.onboarding.done = true; S.onboarding.step = 0; go('dashboard'); render(); },
+  onbExtract(d){ S.onboarding.done = true; S.onboarding.step = 0; go('profil'); render(); setTimeout(() => d.src === 'cam' ? FP.extractCam() : FP.extractFile(), 80); },
+
+  /* Personen */
+  switchPerson(d){ S.activePerson = d.person; if (d.person === 'opa') S.flags.visitedOpa = true; S.ui.editing = null; S.ui.docFilter = 'Alle'; render(); },
+  goProfil(d){ if (d.person) S.activePerson = d.person; go('profil'); render(); },
+  searchDoc(d){ S.activePerson = d.person; S.ui.docFilter = 'Alle'; go('safe'); },
+  personMenu(){
+    openModal({ title:'Person wechseln', cancelLabel:'Schließen',
+      body: S.persons.map(pp => '<div class="row" style="cursor:pointer" data-act="switchPersonModal" data-person="' + pp.id + '"><div class="grow"><div class="title">' + esc(pp.name) + '</div><div class="sub">' + esc(pp.relation) + (pp.note ? ' · ' + esc(pp.note) : '') + '</div></div>' + (pp.id === S.activePerson ? badge('teal','Aktiv') : I.chevron(16)) + '</div>').join('') +
+      '<div class="card-actions" style="justify-content:flex-start;margin-top:12px"><button class="btn btn-secondary btn-sm" data-act="addPerson">' + I.plus(15) + 'Person hinzufügen</button></div>' });
+  },
+  switchPersonModal(d){ closeModal(); FP.switchPerson(d); },
+  addPerson(){
+    closeModal();
+    openModal({ title:'Person hinzufügen', confirmLabel:'Person anlegen',
+      body:'<p style="font-size:13.5px;color:var(--slate);margin-bottom:14px">Verwalte Unterlagen für Angehörige — mit klarer Trennung, wem was gehört.</p>' +
+      '<div class="field"><label for="np-name">Name</label><input type="text" id="np-name" placeholder="Vorname Nachname"></div>' +
+      '<div class="field" style="margin-bottom:0"><label for="np-rel">Beziehung</label><select id="np-rel">' + ['Mutter','Vater','Kind','Großmutter','Großvater','Partner','Sonstige Person'].map(x => '<option>' + x + '</option>').join('') + '</select>' +
+      '<div class="help">Für Eltern und Großeltern empfiehlt sich eine hinterlegte Vollmacht.</div></div>',
+      onConfirm(){
+        const name = $('#np-name').value.trim();
+        if (!name){ toast('Bitte gib einen Namen an.'); return; }
+        const id = 'p' + Date.now();
+        S.persons.push({ id, name, relation: $('#np-rel').value, profile:[
+          { id:'identitaet', name:'Identität', fields:[
+            { id:'vorname', label:'Vorname', value:name.split(' ')[0], help:'' },
+            { id:'nachname', label:'Nachname', value:name.split(' ').slice(1).join(' '), help:'' },
+            { id:'geburtsdatum', label:'Geburtsdatum', value:'', help:'', mono:true } ]},
+          { id:'kontakt', name:'Kontakt', fields:[
+            { id:'adresse', label:'Adresse', value:'', help:'' },
+            { id:'telefon', label:'Telefon', value:'', help:'', mono:true } ]},
+          { id:'versicherung', name:'Versicherung', fields:[
+            { id:'krankenkasse', label:'Krankenkasse', value:'', help:'', sensitive:true } ]}
+        ]});
+        S.activePerson = id;
+        S.log.unshift({ date: today(), text:'Profil für „' + name + '“ angelegt.' });
+        closeModal(); go('profil'); toast('Profil angelegt. Ergänze jetzt die wichtigsten Angaben.');
+      } });
+  },
+
+  /* Vorgänge */
+  openCase(d){ S.ui.caseId = d.case; go('vorgang'); render(); },
+  openCaseReq(d){
+    const c = S.cases.find(x => x.id === d.case);
+    S.activePerson = c.personId; S.ui.reqText = c.reqText || ''; 
+    S.ui.analysis = c.reqText ? analyzeText(c.reqText) : null;
+    if (S.ui.analysis){ S.ui.analysis.caseId = c.id; S.ui.analysis.recipient = c.recipient; if (!S.ui.analysis.deadline) S.ui.analysis.deadline = c.deadline; }
+    go('anforderung'); render();
+  },
+  newRequest(){ S.ui.analysis = null; S.ui.reqText = ''; go('anforderung'); render(); },
+  saveCaseNotes(d){ const c = S.cases.find(x => x.id === d.case); c.notes = $('#case-notes').value; render(); toast('Gespeichert.'); },
+  casePkg(d){
+    const c = S.cases.find(x => x.id === d.case);
+    S.activePerson = c.personId;
+    const tplIdx = c.personId === 'opa' ? 3 : (c.purpose.toLowerCase().indexOf('miet') >= 0 ? 2 : 1);
+    FP.newPkg({ tpl: String(tplIdx) });
+    go('pakete'); render();
+    toast('Paket-Entwurf aus dem Vorgang vorbereitet — prüfe die Auswahl.');
+  },
+
+  /* Eigene Felder */
+  addCustomField(){
+    openModal({ title:'Eigenes Feld hinzufügen', confirmLabel:'Feld anlegen',
+      body:'<div class="field"><label for="cf-label">Bezeichnung</label><input type="text" id="cf-label" placeholder="z. B. Kundennummer Stadtwerke"></div>' +
+      '<div class="field"><label for="cf-type">Feldtyp</label><select id="cf-type"><option>Text</option><option>Zahl</option><option>Datum</option><option>Ja/Nein</option></select></div>' +
+      '<div class="field" style="margin-bottom:10px"><label for="cf-value">Wert (optional)</label><input type="text" id="cf-value"></div>' +
+      '<label class="check-line"><input type="checkbox" id="cf-sens"><span>Als sensibel markieren — zusätzliche Bestätigung vor jeder Freigabe.</span></label>',
+      onConfirm(){
+        const label = $('#cf-label').value.trim();
+        if (!label){ toast('Bitte gib einen Feldnamen an.'); return; }
+        let grp = P().profile.find(g => g.id === 'eigene');
+        if (!grp){ grp = { id:'eigene', name:'Eigene Felder', fields:[] }; P().profile.push(grp); }
+        grp.fields.push({ id:'cf' + Date.now(), label: label, value: $('#cf-value').value.trim(), help:'Eigenes Feld (' + $('#cf-type').value + ')', sensitive: $('#cf-sens').checked });
+        S.log.unshift({ date: today(), text:'Eigenes Feld „' + label + '“ angelegt.' });
+        closeModal(); render(); toast('Feld angelegt.');
+      } });
+  },
+
+  /* Pakete */
+  newPkg(d){
+    const i = +d.tpl;
+    const t = i >= 0 ? PKG_TEMPLATES[i] : { name:'', docs:[], fields:[] };
+    const docIds = personDocs().filter(x => t.docs.includes(x.name)).map(x => x.id);
+    const fieldIds = t.fields.filter(id => { const f = findField(id); return f && f.value; });
+    S.ui.pkgDraft = { name: t.name ? t.name + ' — ' + firstName(P()) : '', docIds, fieldIds, note:'' };
+    render();
+  },
+  pkgToggleDoc(d){ const dr = S.ui.pkgDraft; dr.name = $('#pkg-name').value; dr.note = $('#pkg-note').value; const i = dr.docIds.indexOf(d.doc); i >= 0 ? dr.docIds.splice(i,1) : dr.docIds.push(d.doc); render(); },
+  pkgToggleField(d){ const dr = S.ui.pkgDraft; dr.name = $('#pkg-name').value; dr.note = $('#pkg-note').value; const i = dr.fieldIds.indexOf(d.field); i >= 0 ? dr.fieldIds.splice(i,1) : dr.fieldIds.push(d.field); render(); },
+  cancelPkg(){ S.ui.pkgDraft = null; render(); },
+  savePkg(){
+    const dr = S.ui.pkgDraft;
+    const name = $('#pkg-name').value.trim();
+    if (!name){ toast('Bitte gib einen Namen für das Paket an.'); return; }
+    if (!dr.docIds.length && !dr.fieldIds.length){ toast('Wähle mindestens ein Dokument oder eine Angabe aus.'); return; }
+    S.packages.unshift({ id:'pk' + Date.now(), personId:S.activePerson, name, note: $('#pkg-note').value.trim(), created: today(), docIds: dr.docIds, fieldIds: dr.fieldIds });
+    S.ui.pkgDraft = null;
+    S.log.unshift({ date: today(), text:'Dokumentenpaket „' + name + '“ erstellt.' });
+    render(); toast('Paket erstellt.');
+  },
+  pkgDelete(d){
+    const pk = S.packages.find(x => x.id === d.pkg);
+    openModal({ title:'Paket löschen?', body:'„' + esc(pk.name) + '“ wird gelöscht. Die enthaltenen Dokumente und Angaben bleiben in Safe und Profil erhalten.', confirmLabel:'Löschen', danger:true,
+      onConfirm(){ S.packages = S.packages.filter(x => x.id !== d.pkg); closeModal(); render(); toast('Paket gelöscht.'); } });
+  },
+  pkgPreview(d){
+    const pk = S.packages.find(x => x.id === d.pkg);
+    const docs = pk.docIds.map(id => S.documents.find(x => x.id === id)).filter(Boolean);
+    const sens = pk.fieldIds.filter(id => { const f = findField(id); return f && f.sensitive; });
+    openModal({ title:'Paketvorschau — ' + esc(pk.name), cancelLabel:'Schließen',
+      body:'<div class="sum-block" style="margin-bottom:12px"><div class="sum-head">Dokumente (' + docs.length + ')</div>' + (docs.map(x => '<div class="sum-item"><span class="l">' + esc(x.name) + '</span><span class="r">' + esc(x.cat) + '</span></div>').join('') || '<div class="sum-item"><span class="l">Keine</span></div>') + '</div>' +
+      '<div class="sum-block" style="margin-bottom:12px"><div class="sum-head">Angaben (' + pk.fieldIds.length + ')</div>' + pk.fieldIds.map(id => { const f = findField(id); return f ? '<div class="sum-item"><span class="l">' + esc(f.label) + '</span><span class="r mono">' + esc(f.value) + '</span></div>' : ''; }).join('') + '</div>' +
+      (sens.length ? '<div class="info-banner">' + I.info(18) + '<span>Dieses Paket enthält sensible Daten. Vor jeder Freigabe wird eine zusätzliche Bestätigung verlangt.</span></div>' : '') });
+  },
+  pkgDownload(d){
+    const pk = S.packages.find(x => x.id === d.pkg);
+    const docs = pk.docIds.map(id => S.documents.find(x => x.id === id)).filter(Boolean);
+    let html = '<!DOCTYPE html><html lang="de"><meta charset="utf-8"><title>FormPilot Dokumentenmappe</title><body style="font-family:Inter,sans-serif;max-width:640px;margin:40px auto;color:#33475B">' +
+      '<h1 style="color:#0B1F30">FormPilot Dokumentenmappe</h1><p><b>' + esc(pk.name) + '</b> — ' + esc(P().name) + '<br>Erstellt am ' + today() + ' über FormPilot (Demo).</p><h2 style="color:#0B1F30">Inhaltsverzeichnis</h2><ol>' +
+      docs.map(x => '<li>' + esc(x.name) + ' (' + esc(x.cat) + (x.validUntil ? ', gültig bis ' + x.validUntil : '') + ')</li>').join('') + '</ol><h2 style="color:#0B1F30">Enthaltene Angaben</h2><ul>' +
+      pk.fieldIds.map(id => { const f = findField(id); return f ? '<li>' + esc(f.label) + ': ' + esc(f.value) + '</li>' : ''; }).join('') + '</ul><p style="color:#5F7485;font-size:13px">Demo-Export — in der echten App eine PDF-Sammelmappe mit Deckblatt und angehängten Dokumenten.</p></body></html>';
+    const blob = new Blob([html], { type:'text/html' });
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'FormPilot-Mappe-' + pk.name.replace(/[^\wäöüß-]+/gi,'-') + '.html'; a.click();
+    S.log.unshift({ date: today(), text:'Sammelmappe „' + pk.name + '“ heruntergeladen.' });
+    render(); toast('Sammelmappe erstellt.');
+  },
+  pkgShare(d){
+    const pk = S.packages.find(x => x.id === d.pkg);
+    openModal({ title:'Paket freigeben', confirmLabel:'Freigabe vorbereiten',
+      body:'<div class="field" style="margin-bottom:0"><label for="pkg-rec">Empfänger (Organisation)</label><input type="text" id="pkg-rec" placeholder="z. B. Muster GmbH"><div class="help">Danach durchläufst du den üblichen Prüf- und Bestätigungsprozess in 3 Schritten.</div></div>',
+      onConfirm(){
+        const rec = $('#pkg-rec').value.trim();
+        if (!rec){ toast('Bitte gib einen Empfänger an.'); return; }
+        const items = [];
+        for (const id of pk.fieldIds){ const f = findField(id); if (f && f.value) items.push({ key:'f-' + id, label:f.label, type:'data', fieldId:id, included:true, sens: !!f.sensitive }); }
+        for (const id of pk.docIds){ const doc = S.documents.find(x => x.id === id); if (doc) items.push({ key:'d-' + id, label:doc.name, type:'doc', docId:id, included:true }); }
+        S.ui.share = { step:1, caseId:null, recipient:rec, purpose:'Paket: ' + pk.name, deadline:null, items, expiresDays:60, expiresDate:addDays(60), confirmed:false, done:false };
+        closeModal(); go('freigabe');
+      } });
+  },
+
+  /* Empfängeransicht & Feedback & Einwilligungen */
+  recipientView(d){
+    const s = S.shares.find(x => x.id === d.share);
+    openModal({ title:'So sieht es der Empfänger (Demo-Vorschau)', cancelLabel:'Schließen',
+      body:'<div style="border:1px solid var(--line);border-radius:10px;overflow:hidden">' +
+      '<div style="background:var(--marine);color:#fff;padding:14px 16px;font-weight:600;font-size:14px">FormPilot — Sichere Freigabe</div>' +
+      '<div style="padding:16px"><p style="font-size:13.5px;color:var(--slate);margin-bottom:10px">' + esc(personName(s.personId) || 'Maurice Wollmer') + ' hat Unterlagen für Sie bereitgestellt. Zugriff bis ' + s.expires + '.</p>' +
+      s.docs.map(x => '<div class="row"><div class="doc-icon">PDF</div><div class="grow"><div class="title" style="font-size:14px">' + esc(x) + '</div></div><span class="badge badge-neutral">Nur Ansicht</span></div>').join('') +
+      (s.data.length ? '<div style="margin-top:10px;font-size:13.5px"><span style="color:var(--slate)">Angaben:</span> ' + esc(s.data.join(', ')) + '</div>' : '') +
+      '<div class="sec-note" style="margin-top:12px">' + I.shield(16) + '<span>Bereitgestellt über FormPilot. Jeder Abruf wird protokolliert. Demo: Es besteht kein echter externer Zugriff.</span></div></div></div>' });
+  },
+  openFeedback(){
+    const scale = id => '<select id="' + id + '"><option>5 — sehr</option><option>4</option><option>3</option><option>2</option><option>1 — gar nicht</option></select>';
+    openModal({ title:'Dein Feedback — dauert unter 2 Minuten', confirmLabel:'Feedback senden',
+      body:'<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px"><div class="field"><label for="fb-clear">Wie verständlich war die App?</label>' + scale('fb-clear') + '</div>' +
+      '<div class="field"><label for="fb-trust">Wie vertrauenswürdig wirkt sie?</label>' + scale('fb-trust') + '</div></div>' +
+      '<div class="field"><label for="fb-use">Würdest du FormPilot nutzen?</label><select id="fb-use"><option>Ja</option><option>Vielleicht</option><option>Nein</option></select></div>' +
+      '<div class="field"><label for="fb-unclear">Was war unklar?</label><textarea id="fb-unclear" style="min-height:56px"></textarea></div>' +
+      '<div class="field"><label for="fb-missing">Welche Funktion fehlt dir?</label><textarea id="fb-missing" style="min-height:56px"></textarea></div>' +
+      '<div class="field"><label for="fb-improve">Was sollten wir verbessern?</label><textarea id="fb-improve" style="min-height:56px"></textarea></div>' +
+      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px"><div class="field" style="margin-bottom:0"><label for="fb-name">Name (optional)</label><input type="text" id="fb-name"></div>' +
+      '<div class="field" style="margin-bottom:0"><label for="fb-mail">E-Mail (optional)</label><input type="email" id="fb-mail"></div></div>',
+      onConfirm(){ FP.submitFeedback(); } });
+  },
+  submitFeedback(){
+    const fb = { verstaendlich: $('#fb-clear').value, vertrauen: $('#fb-trust').value, nutzen: $('#fb-use').value, unklar: $('#fb-unclear').value, fehlt: $('#fb-missing').value, verbessern: $('#fb-improve').value, name: $('#fb-name').value, kontakt: $('#fb-mail').value, testphase:'beta-v0.9' };
+    S.feedback.push(Object.assign({ date: today() }, fb));
+    S.flags.feedbackSent = true;
+    closeModal(); render();
+    const body = new URLSearchParams(Object.assign({ 'form-name':'feedback' }, fb)).toString();
+    fetch('/', { method:'POST', headers:{ 'Content-Type':'application/x-www-form-urlencoded' }, body })
+      .then(r => { if (!r.ok) throw 0; toast('Danke. Dein Feedback ist angekommen.'); })
+      .catch(() => {
+        toast('Danke. Dein Feedback wurde gespeichert.');
+        openModal({ title:'Feedback zusätzlich per E-Mail senden?', cancelLabel:'Nein, danke', confirmLabel:'E-Mail öffnen',
+          body:'Der direkte Versand hat nicht geklappt (offline oder lokale Datei). Du kannst das Feedback per E-Mail schicken:',
+          onConfirm(){ location.href = 'mailto:mauricewollmer@gmail.com?subject=' + encodeURIComponent('FormPilot Beta-Feedback') + '&body=' + encodeURIComponent('Verständlich: ' + fb.verstaendlich + ' · Vertrauen: ' + fb.vertrauen + ' · Nutzen: ' + fb.nutzen + '\n\nUnklar: ' + fb.unklar + '\nFehlt: ' + fb.fehlt + '\nVerbessern: ' + fb.verbessern); closeModal(); } });
+      });
+  },
+  dismissGuide(){ S.flags.guideDismissed = true; render(); },
+  dismissNext(){ S.flags.nextDone = true; render(); },
+  demoStart(){
+    S.auth.loggedIn = true; S.ui.loginStep = 1;
+    S.log.unshift({ date: today(), text:'Anmeldung als Testnutzer (Demo-Direktstart).' });
+    render();
+  },
+  toggleConsent(d, el){ const c = S.consents.find(x => x.id === d.consent); c.active = el.checked; c.date = el.checked ? today() : c.date; save(); toast(el.checked ? 'Einwilligung erteilt.' : 'Einwilligung widerrufen.'); }
+});
+
+/* ---------- Formular-Assistent ---------- */
+const FORM_TEMPLATES = [
+  { id:'personalbogen', name:'Personalbogen Arbeitgeber', org:'Muster GmbH', fields:[
+    ['Vorname','vorname'],['Nachname','nachname'],['Geburtsdatum','geburtsdatum'],['Geburtsort','geburtsort'],['Staatsangehörigkeit','staat'],
+    ['Anschrift','adresse'],['E-Mail','email'],['Telefon','telefon'],['Steuer-Identifikationsnummer','steuerid',1],['Steuerklasse','steuerklasse'],
+    ['Sozialversicherungsnummer','svnr',1],['Krankenkasse','krankenkasse',1],['IBAN','iban',1],['Kreditinstitut','bankname'],
+    ['Hochschule','hochschule'],['Matrikelnummer','matrikelnr'] ] },
+  { id:'mieterauskunft', name:'Mieterselbstauskunft', org:'Wohnbau Trier GmbH', fields:[
+    ['Vorname','vorname'],['Nachname','nachname'],['Geburtsdatum','geburtsdatum'],['Aktuelle Anschrift','adresse'],
+    ['E-Mail','email'],['Telefon','telefon'],['Tätigkeit / Studium','studiengang'],['IBAN (Kaution)','iban',1] ] },
+  { id:'pflegeantrag', name:'Antrag Pflegekasse — Höherstufung', org:'AOK Pflegekasse', person:'opa', fields:[
+    ['Vorname','vorname'],['Nachname','nachname'],['Geburtsdatum','geburtsdatum'],['Rentenversicherungsnummer','rentenvnr',1],
+    ['Aktueller Pflegegrad','pflegegrad',1],['Pflegekasse','pflegekasse',1],['Aktenzeichen','aktenzeichen'],
+    ['Behandelnder Arzt','hausarzt'],['Bevollmächtigte Person','bevollmaechtigt'] ] }
+];
+function detectFormTpl(fname){
+  const n = fname.toLowerCase();
+  if (/miet|wohnung|selbstauskunft/.test(n)) return 'mieterauskunft';
+  if (/pflege|höherstufung|kasse/.test(n)) return 'pflegeantrag';
+  return 'personalbogen';
+}
+function buildForm(tplId){
+  const t = FORM_TEMPLATES.find(x => x.id === tplId);
+  if (t.person && t.person !== S.activePerson) S.activePerson = t.person;
+  const saved = S.formMappings.find(m => m.tplId === tplId);
+  const rows = t.fields.map(f => {
+    const pf = findField(f[1]);
+    const value = pf && pf.value ? pf.value : '';
+    return { label:f[0], map:f[1], value, sens:!!f[2],
+      status: value ? (pf.needsReview ? 'check' : 'auto') : 'missing',
+      source: value ? 'Aus deinem Profil übernommen' : 'Nicht im Profil hinterlegt — bitte ergänzen' };
+  });
+  S.ui.form = { tplId, name:t.name, org:t.org, rows, step:'map', reused:!!saved };
+}
+VIEWS.formular = function(){
+  const f = S.ui.form;
+  if (!f){
+    const up = S.ui.formUpload;
+    return '<div class="page-head"><h1>Formular ausfüllen</h1><p class="page-sub">Lade ein Formular hoch oder wähle eine Vorlage — FormPilot füllt es mit deinen hinterlegten Daten vor. Du prüfst und bestätigst jedes Feld.</p></div>' +
+      (up && up.progress < 100 ?
+        '<div class="upload-zone"><div class="uz-title">' + esc(up.name) + ' wird gelesen …</div><div class="progress" style="max-width:320px;margin:14px auto 0"><div style="width:' + up.progress + '%"></div></div><div class="uz-sub">Formularfelder werden erkannt</div></div>' :
+        '<div class="upload-zone" data-act="formUploadClick"><div class="uz-title">Formular hierher ziehen oder auswählen</div><div class="uz-sub">PDF, JPG oder PNG, max. 20 MB · Demo: die Felderkennung ist simuliert</div><div class="uz-secure">' + I.shieldCheck(15) + 'Wird nur auf diesem Gerät verarbeitet</div></div>') +
+      '<input type="file" id="form-file" style="display:none" accept=".pdf,.jpg,.jpeg,.png">' +
+      '<h2 class="section-title" style="margin-top:32px">Oder Vorlage wählen</h2>' +
+      '<div class="cards grid-2">' + FORM_TEMPLATES.map(t =>
+        '<div class="card" style="cursor:pointer" data-act="formTpl" data-tpl="' + t.id + '"><div class="card-head"><h3>' + t.name + '</h3>' + I.chevron(18) + '</div><div class="meta">' + t.org + ' · ' + t.fields.length + ' Felder' + (t.person === 'opa' ? ' · Profil: Heinz Wollmer' : '') + '</div></div>').join('') + '</div>' +
+      '<div class="sec-note">' + I.shield(16) + '<span>FormPilot erkennt, welche Angaben benötigt werden — gesendet wird nichts.</span></div>';
+  }
+  if (f.step === 'map'){
+    const auto = f.rows.filter(r => r.status === 'auto').length;
+    const openRows = f.rows.length - auto;
+    return '<div class="page-head"><h1>' + esc(f.name) + '</h1><p class="page-sub">' + esc(f.org) + ' · Profil: ' + esc(P().name) + '</p></div>' +
+      '<div class="info-banner">' + I.info(18) + '<span><b>' + auto + ' von ' + f.rows.length + ' Feldern</b> automatisch aus deinem Profil übernommen' + (openRows ? ' — ' + openRows + ' bitte prüfen oder ergänzen.' : '.') + (f.reused ? ' Deine gespeicherte Zuordnung wurde wiederverwendet.' : '') + '</span></div>' +
+      '<div class="card" style="margin-top:16px">' + f.rows.map((r,i) =>
+        '<div class="field"><label for="ff-' + i + '">' + esc(r.label) + (r.sens ? ' <span class="badge badge-warn" style="margin-left:6px">Sensibel</span>' : '') + '</label>' +
+        '<input type="text" id="ff-' + i + '" value="' + esc(r.value) + '"' + (r.status === 'missing' ? ' placeholder="Bitte ergänzen"' : '') + '>' +
+        '<div class="help" style="color:' + (r.status === 'missing' ? 'var(--warn)' : 'var(--slate)') + '">' + r.source + '</div></div>').join('') + '</div>' +
+      '<div class="card-actions" style="justify-content:space-between;margin-top:20px"><button class="btn btn-secondary" data-act="formCancel">Abbrechen</button>' +
+      '<button class="btn btn-primary" data-act="formPreview">Ausfüllvorschau anzeigen</button></div>' +
+      '<div class="sec-note">' + I.shield(16) + '<span>Jede Angabe bleibt editierbar. Übernommen wird nur, was du hier bestätigst.</span></div>';
+  }
+  return '<div class="page-head"><h1>Ausfüllvorschau</h1><p class="page-sub">So sieht das ausgefüllte Formular aus. Prüfe alle Angaben vor dem Herunterladen.</p></div>' +
+    '<div class="card" style="padding:32px">' +
+    '<div style="border-bottom:2px solid var(--ink);padding-bottom:14px;margin-bottom:18px"><h2 style="font-size:19px">' + esc(f.name) + '</h2><div class="meta">' + esc(f.org) + ' · erstellt am ' + today() + ' · vorbereitet mit FormPilot</div></div>' +
+    f.rows.map(r => '<div class="sum-item" style="padding:9px 0"><span class="l">' + esc(r.label) + '</span><span class="r mono">' + (r.value ? esc(r.value) : '—') + '</span></div>').join('') +
+    '<div style="margin-top:26px;display:flex;justify-content:space-between;gap:20px"><div style="border-top:1px solid var(--grayblue);padding-top:6px;font-size:12.5px;color:var(--slate);flex:1;max-width:220px">Ort, Datum</div><div style="border-top:1px solid var(--grayblue);padding-top:6px;font-size:12.5px;color:var(--slate);flex:1;max-width:220px">Unterschrift</div></div></div>' +
+    '<div class="card-actions" style="justify-content:space-between;margin-top:20px"><button class="btn btn-secondary" data-act="formBack">Zurück bearbeiten</button>' +
+    '<div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn btn-secondary" data-act="formSave">Im Safe speichern</button>' +
+    '<button class="btn btn-primary" data-act="formDownload">Formular herunterladen</button></div></div>' +
+    '<div class="sec-note">' + I.shield(16) + '<span>Nichts wird gesendet — du entscheidest, was mit dem Formular passiert.</span></div>';
+};
+
+/* ---------- Unternehmens-Demo ---------- */
+const ORG_TEMPLATES = [
+  { name:'Werkstudent — Onboarding', days:60, text:'Für den Vertragsbeginn benötigen wir: Steuer-Identifikationsnummer, IBAN, Krankenkasse, Sozialversicherungsnummer und eine aktuelle Immatrikulationsbescheinigung.' },
+  { name:'Mieterbewerbung', days:30, text:'Für die Bewerbung benötigen wir: Anschrift, eine Kopie des Personalausweises und einen Versicherungsnachweis (Haftpflicht).' },
+  { name:'Autovermietung — Fahrzeugübergabe', days:3, prefilled:true, text:'Ihre Buchung über Check24 liegt uns vor. Für die Fahrzeugübergabe benötigen wir eine Kopie des Personalausweises und den Führerschein zur Prüfung. Der Zugriff wird nur für die Mietdauer benötigt.' },
+  { name:'Praktikum', days:60, text:'Wir benötigen: Steuer-Identifikationsnummer, Krankenkasse, IBAN und einen Lebenslauf.' }
+];
+VIEWS.unternehmen = function(){
+  const sent = S.cases.filter(c => c.source === 'org');
+  const items = S.ui.orgItems;
+  return '<div class="page-head"><h1>Unternehmensansicht</h1><p class="page-sub">Demo-Bereich: So erstellen Unternehmen strukturierte Datenanfragen — aus einer Vorlage oder frei beschrieben. Der Empfänger sieht nie das vollständige Profil, nur die Freigabe.</p></div>' +
+    '<div class="card"><div class="card-head"><h3>Neue Anfrage erstellen</h3></div>' +
+    '<div class="field"><label for="org-name">Organisation</label><input type="text" id="org-name" value="' + esc(S.ui.orgName || 'SunCar Autovermietung') + '"></div>' +
+    '<div class="field"><label for="org-tpl">Vorlage (optional)</label><select id="org-tpl" data-act-change="orgTpl"><option value="-1">Frei beschreiben …</option>' + ORG_TEMPLATES.map((t,i) => '<option value="' + i + '"' + (S.ui.orgTplIdx === i ? ' selected' : '') + '>' + t.name + '</option>').join('') + '</select></div>' +
+    '<div class="field"><label for="org-free">Was wird benötigt?</label><textarea id="org-free" style="min-height:90px" placeholder="Beschreibe frei, welche Angaben und Dokumente du brauchst …">' + esc(S.ui.orgText || '') + '</textarea>' +
+    '<div class="help">FormPilot erkennt die Posten aus deiner Beschreibung — du prüfst und passt sie an.</div></div>' +
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px"><div class="field"><label for="org-deadline">Frist</label><input type="text" id="org-deadline" value="' + esc(S.ui.orgDeadline || addDays(14)) + '" class="mono"></div>' +
+    '<div class="field"><label for="org-days">Zugriffsdauer</label><select id="org-days">' + [3,7,30,60].map(dn => '<option value="' + dn + '"' + ((S.ui.orgDays || 60) === dn ? ' selected' : '') + '>' + dn + ' Tage</option>').join('') + '</select></div></div>' +
+    '<div class="field" style="margin-bottom:0"><label for="org-msg">Nachricht an den Nutzer (optional)</label><input type="text" id="org-msg" value="' + esc(S.ui.orgMsg || '') + '"></div>' +
+    (items ? '<h4 style="margin:18px 0 4px">Erkannte Posten (' + items.filter(i => i.included).length + ' von ' + items.length + ' ausgewählt)</h4>' +
+      items.map((it,i) => '<label class="check-line" style="padding:7px 0"><input type="checkbox" data-act="orgToggle" data-i="' + i + '"' + (it.included ? ' checked' : '') + '><span>' + esc(it.label) + ' <span style="color:var(--grayblue);font-size:12.5px">' + (it.type === 'data' ? 'Angabe' : 'Dokument') + '</span></span></label>').join('') : '') +
+    '<div class="card-actions">' +
+    '<button class="btn btn-secondary" data-act="orgAnalyze">Posten erkennen</button>' +
+    '<button class="btn btn-primary" data-act="orgSend"' + (items && items.some(i => i.included) ? '' : ' disabled') + '>Anfrage senden</button></div></div>' +
+    (sent.length ? '<div class="section"><h2 class="section-title">Gesendete Anfragen — Statussicht</h2><div class="card" style="padding:6px 24px">' + sent.map(c =>
+      '<div class="row"><div class="grow"><div class="title">' + esc(c.recipient) + ' → Maurice Wollmer</div><div class="sub">' + esc(c.purpose) + ' · Frist ' + c.deadline + '</div></div>' +
+      badge(c.status === 'gesendet' ? 'ok' : c.status === 'abgelehnt' ? 'neutral' : 'info', c.status === 'offen' ? 'Gesendet — noch nicht beantwortet' : c.status === 'gesendet' ? 'Vollständig eingereicht' : c.status === 'abgelehnt' ? 'Abgelehnt' : 'In Bearbeitung') + '</div>').join('') + '</div>' +
+    '<p class="help" style="margin-top:10px">Das Unternehmen sieht nur den Status — keine Profildaten, keine Dokumente außerhalb der Freigabe.</p></div>' : '') +
+    '<div class="card-actions" style="justify-content:flex-start;margin-top:20px"><button class="btn btn-secondary" data-act="nav" data-route="dashboard">Zurück zur Nutzeransicht</button></div>';
+};
+
+/* ---------- Hilfe ---------- */
+const GLOSSARY = [
+  ['Steuer-Identifikationsnummer','11 Ziffern, lebenslang gültig. Steht auf deinem Steuerbescheid oder im Schreiben des Bundeszentralamts für Steuern. Arbeitgeber brauchen sie für die Lohnabrechnung.'],
+  ['Sozialversicherungsnummer','Steht auf deinem Sozialversicherungsausweis oder jeder Gehaltsabrechnung. Format: 12 160394 W 512.'],
+  ['Rentenversicherungsnummer','Identisch aufgebaut wie die SV-Nummer. Steht auf dem Rentenbescheid — wichtig bei Pflege- und Rentenanträgen.'],
+  ['Pflegegrad','Stufe 1–5, festgestellt durch den Medizinischen Dienst. Grundlage für Leistungen der Pflegekasse.'],
+  ['Vorsorgevollmacht','Erlaubt einer Vertrauensperson, rechtliche Angelegenheiten zu übernehmen. Bei FormPilot als Dokument hinterlegbar — Voraussetzung, um Vorgänge für Angehörige zu führen.'],
+  ['Freigabe','Eine zeitlich begrenzte, widerrufbare Erlaubnis für einen Empfänger, bestimmte Daten oder Dokumente zu sehen. Nie unbefristet, nie automatisch.']
+];
+VIEWS.hilfe = function(){
+  return '<div class="page-head"><h1>Hilfe & Support</h1><p class="page-sub">Kurze Antworten auf die häufigsten Fragen — und echte Menschen, wenn du sie brauchst.</p></div>' +
+    '<div class="cards">' +
+    '<div class="card"><div class="card-head"><h3>Erste Schritte</h3></div>' +
+    ['Profil ausfüllen: Übersicht → Profil. Jedes Feld einzeln, mit Erklärung, sofort gespeichert.','Dokument hochladen: Dokumentensafe → Datei hineinziehen. FormPilot schlägt Kategorie und Ablaufdatum vor.','Anforderung beantworten: Text der E-Mail einfügen → Checkliste abarbeiten → Freigabe in 3 Schritten bestätigen.','Formular ausfüllen: Formular hochladen oder Vorlage wählen — die Felder werden aus deinem Profil vorbefüllt.','Angehörige verwalten: Person hinzufügen, Vollmacht hinterlegen, Vorgänge getrennt führen.'].map((x,i) =>
+      '<div class="row"><div class="ci-status ci-info" style="font-size:13px;font-weight:700">' + (i+1) + '</div><div class="grow" style="font-size:14.5px">' + x + '</div></div>').join('') + '</div>' +
+    '<div class="card"><div class="card-head"><h3>Begriffe einfach erklärt</h3></div>' +
+    GLOSSARY.map(g => '<div class="kv"><div class="kv-top"><div class="kv-label">' + g[0] + '</div><div class="kv-value" style="font-weight:400;font-size:14px;color:var(--body)">' + g[1] + '</div></div></div>').join('') + '</div>' +
+    '<div class="card"><div class="card-head"><h3>Sicherheit in einem Satz</h3></div>' +
+    '<p>Nichts wird automatisch geteilt, jede Freigabe läuft ab und ist widerrufbar — und jeder Zugriff steht im Protokoll. In dieser Testversion bleiben alle Daten in deinem Browser. Details: <button class="link-btn" data-act="nav" data-route="datenschutz">Datenschutz & DSGVO</button></p></div>' +
+    '<div class="card"><div class="card-head"><h3>Kontakt</h3></div>' +
+    '<p>Da ist jemand: <a href="mailto:mauricewollmer@gmail.com">support@formpilot.app</a> — Antwort in der Regel innerhalb eines Werktags. Oder vereinbare einen Rückruf.</p>' +
+    '<div class="card-actions"><button class="btn btn-secondary btn-sm" data-act="requestCallback">Rückruf anfordern</button></div></div></div>';
+};
+
+VIEWS.datenschutz = function(){
+  const rights = [
+    ['Auskunft (Art. 15)','Sieh jederzeit alle gespeicherten Daten ein — über Profil, Safe und den Datenexport.','nav','sicherheit','Zum Datenexport'],
+    ['Berichtigung (Art. 16)','Jedes Feld ist einzeln editierbar, Änderungen gelten sofort.','nav','profil','Zum Profil'],
+    ['Löschung (Art. 17)','Einzelne Dokumente löschen oder das ganze Konto — ohne Hürden.','nav','sicherheit','Zu Sicherheit & Zugriff'],
+    ['Datenübertragbarkeit (Art. 20)','Exportiere alle Daten als maschinenlesbare Datei (JSON).','nav','sicherheit','Zum Datenexport'],
+    ['Widerruf (Art. 7)','Einwilligungen und Freigaben sind jederzeit widerrufbar — mit einem Klick.','nav','freigaben','Zu den Freigaben']
+  ];
+  return pageHead('solid','shield','Datenschutz & DSGVO','Verständlich statt Kleingedrucktes — was mit deinen Daten passiert, entscheidest du.') +
+    '<div class="cards">' +
+    '<div class="card"><div class="card-head"><h3>So arbeitet FormPilot mit deinen Daten</h3></div>' +
+    [['Datensparsamkeit','Es wird nie mehr abgefragt als nötig. Jedes Feld erklärt, wofür es gebraucht wird.'],
+     ['Zweckbindung','Daten werden nur für den Vorgang verwendet, den du freigibst — nie für etwas anderes.'],
+     ['Transparenz','Jeder Zugriff erscheint im Protokoll. Du siehst lückenlos, wer was erhalten hat.'],
+     ['Kontrolle','Nichts wird automatisch gesendet. Jede Freigabe hat ein Ablaufdatum und ist widerrufbar.']].map(x =>
+      '<div class="kv"><div class="kv-top"><div class="kv-label">' + x[0] + '</div><div class="kv-value" style="font-weight:400;font-size:14px;color:var(--body)">' + x[1] + '</div></div></div>').join('') + '</div>' +
+    '<div class="card"><div class="card-head"><h3>Deine Rechte nach DSGVO</h3></div>' +
+    rights.map(r => '<div class="kv"><div class="kv-top"><div class="kv-label">' + r[0] + '</div><div class="kv-value" style="font-weight:400;font-size:14px;color:var(--body)">' + r[1] + ' <button class="link-btn" data-act="' + r[2] + '" data-route="' + r[3] + '">' + r[4] + '</button></div></div></div>').join('') +
+    '<p class="help" style="margin-top:10px">Zusätzlich hast du das Recht auf Beschwerde bei einer Datenschutz-Aufsichtsbehörde (z. B. LfDI Rheinland-Pfalz).</p></div>' +
+    '<div class="card"><div class="card-head"><h3>Was gilt in dieser Testversion?</h3></div>' +
+    '<p>Diese Beta speichert alle Daten <b>ausschließlich in deinem Browser</b> (localStorage) — es gibt keinen Server, keine Konten, keine Weitergabe. Einzige Ausnahme: Wenn du das Feedback-Formular absendest, werden nur dessen Inhalte über Netlify (Auftragsverarbeiter, EU-Verarbeitung konfigurierbar) an uns übermittelt.</p>' +
+    '<p style="margin-top:8px">Bitte gib deshalb keine echten sensiblen Daten ein. Für den echten Betrieb folgen eine vollständige Datenschutzerklärung, Auftragsverarbeitungsverträge und verschlüsselte Server-Speicherung.</p>' +
+    '<p class="help" style="margin-top:10px">Verantwortlich (Demo): Maurice Wollmer · <a href="mailto:mauricewollmer@gmail.com">mauricewollmer@gmail.com</a> · Stand: Juli 2026</p></div>' +
+    '</div>' +
+    '<div class="sec-note">' + I.shield(16) + '<span>Datenschutz ist hier keine PDF, sondern Teil der Oberfläche — an jeder relevanten Stelle.</span></div>';
+};
+
+/* ---------- Neue Aktionen ---------- */
+Object.assign(FP, {
+  navGate(d){ closeModal(); S.ui.gatePage = d.route; render(); },
+  openForm(){ S.ui.form = null; go('formular'); render(); },
+  formUploadClick(){ const fi = $('#form-file'); if (fi) fi.click(); },
+  formTpl(d){ buildForm(d.tpl); render(); },
+  formCancel(){ S.ui.form = null; render(); },
+  formBack(){ S.ui.form.step = 'map'; render(); },
+  formPreview(){
+    const f = S.ui.form;
+    f.rows.forEach((r,i) => { const el = $('#ff-' + i); if (el) r.value = el.value.trim(); });
+    if (!S.formMappings.find(m => m.tplId === f.tplId)){
+      S.formMappings.push({ tplId: f.tplId, date: today() });
+      S.stats.forms += 1;
+      S.stats.reused += f.rows.filter(r => r.status === 'auto').length;
+      toast('Zuordnung gespeichert — beim nächsten ähnlichen Formular vorausgefüllt.');
+    }
+    f.step = 'preview'; render();
+  },
+  formDownload(){
+    const f = S.ui.form;
+    const html = '<!DOCTYPE html><html lang="de"><meta charset="utf-8"><title>' + esc(f.name) + '</title><body style="font-family:Inter,sans-serif;max-width:640px;margin:40px auto;color:#33475B">' +
+      '<h1 style="color:#0B1F30;border-bottom:2px solid #0B1F30;padding-bottom:10px">' + esc(f.name) + '</h1><p style="color:#5F7485">' + esc(f.org) + ' · erstellt am ' + today() + ' · vorbereitet mit FormPilot (Demo)</p><table style="width:100%;border-collapse:collapse">' +
+      f.rows.map(r => '<tr><td style="padding:8px 0;color:#5F7485;width:45%">' + esc(r.label) + '</td><td style="padding:8px 0;color:#0B1F30;font-weight:600">' + (r.value ? esc(r.value) : '—') + '</td></tr>').join('') +
+      '</table><div style="margin-top:44px;display:flex;gap:40px"><div style="border-top:1px solid #9AAFC0;padding-top:6px;width:200px;font-size:12px;color:#5F7485">Ort, Datum</div><div style="border-top:1px solid #9AAFC0;padding-top:6px;width:200px;font-size:12px;color:#5F7485">Unterschrift</div></div></body></html>';
+    const blob = new Blob([html], { type:'text/html' });
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = f.name.replace(/[^\wäöüß-]+/gi,'-') + '-ausgefuellt.html'; a.click();
+    S.log.unshift({ date: today(), text:'Formular „' + f.name + '“ ausgefüllt heruntergeladen.' });
+    render(); toast('Formular heruntergeladen — ' + f.rows.filter(r => r.value).length + ' Felder aus deinem Profil, nichts abgetippt.');
+  },
+  formSave(){
+    const f = S.ui.form;
+    S.documents.unshift({ id:'d' + Date.now(), personId:S.activePerson, name: f.name + ' (ausgefüllt)', cat:'Verträge', ext:'PDF', validUntil:'', added: today(), lastShared:'', status:'ok' });
+    S.log.unshift({ date: today(), text:'Ausgefülltes Formular „' + f.name + '“ im Safe gespeichert.' });
+    render(); toast('Im Safe gespeichert.');
+  },
+
+  orgTpl(el){
+    const i = +el.value; S.ui.orgTplIdx = i >= 0 ? i : null;
+    const t = i >= 0 ? ORG_TEMPLATES[i] : null;
+    S.ui.orgText = t ? t.text : ''; S.ui.orgDays = t ? t.days : 60; S.ui.orgItems = null;
+    S.ui.orgName = $('#org-name').value; S.ui.orgDeadline = $('#org-deadline').value; S.ui.orgMsg = $('#org-msg').value;
+    render();
+  },
+  orgKeep(){
+    S.ui.orgName = $('#org-name').value; S.ui.orgText = $('#org-free').value;
+    S.ui.orgDeadline = $('#org-deadline').value; S.ui.orgDays = +$('#org-days').value; S.ui.orgMsg = $('#org-msg').value;
+  },
+  orgAnalyze(){
+    FP.orgKeep();
+    if ((S.ui.orgText || '').length < 15){ toast('Bitte beschreibe kurz, welche Unterlagen benötigt werden.'); return; }
+    const items = [];
+    for (const c of CATALOG) if (c.rx.test(S.ui.orgText)) items.push({ key:c.key, label:c.label, type:c.type, included:true });
+    if (!items.length){ toast('Keine bekannten Posten erkannt. Nenne konkrete Angaben oder Dokumente.'); return; }
+    S.ui.orgItems = items; render();
+  },
+  orgToggle(d){ FP.orgKeep(); const it = S.ui.orgItems[+d.i]; it.included = !it.included; render(); },
+  orgSend(){
+    FP.orgKeep();
+    const inc = (S.ui.orgItems || []).filter(i => i.included);
+    if (!inc.length) return;
+    const org = S.ui.orgName.trim() || 'Beispiel AG';
+    const tpl = S.ui.orgTplIdx !== null && S.ui.orgTplIdx >= 0 ? ORG_TEMPLATES[S.ui.orgTplIdx] : null;
+    const purpose = tpl ? tpl.name : 'Angeforderte Unterlagen';
+    const req = 'Guten Tag Herr Wollmer,\n\n' + (S.ui.orgMsg ? S.ui.orgMsg + ' ' : '') + 'für den Vorgang „' + purpose + '“ benötigen wir bis zum ' + S.ui.orgDeadline + ': ' + inc.map(i => i.label).join(', ') + '. Der Zugriff wird für ' + S.ui.orgDays + ' Tage benötigt.\n\nMit freundlichen Grüßen\n' + org;
+    S.cases.unshift({ id:'c' + Date.now(), personId:'maurice', source:'org', title: purpose + ' — ' + org, recipient: org, purpose, deadline: S.ui.orgDeadline, status:'offen', notes:'', reqText: req, suggestedDays: S.ui.orgDays,
+      prefilled: (tpl && tpl.prefilled) ? ['Name','Geburtsdatum','Buchungsnummer C24-88213 (über Check24 übermittelt)'] : null,
+      history:[{ date: today(), text:'Anforderung der ' + org + ' erhalten.' }] });
+    S.notifications.unshift({ id:'n' + Date.now(), date: today(), text:'Neue Anforderung der ' + org + ' — ' + inc.length + ' Posten, Frist ' + S.ui.orgDeadline + (S.ui.orgDays <= 7 ? '. Zugriff endet automatisch nach ' + S.ui.orgDays + ' Tagen.' : '.'), read:false });
+    S.ui.orgItems = null; S.ui.orgText = ''; S.ui.orgTplIdx = null;
+    render(); toast('Anfrage gesendet. Sie liegt jetzt als Vorgang in der Nutzeransicht.');
+  },
+
+  openNotifications(){
+    openModal({ title:'Mitteilungen', cancelLabel:'Schließen',
+      body: S.notifications.length ? S.notifications.slice(0,8).map(n =>
+        '<div class="row"><div class="ci-status ' + (n.read ? 'ci-info' : 'ci-warn') + '">' + I.bell(15) + '</div><div class="grow"><div style="font-size:14px;color:var(--ink)">' + esc(n.text) + '</div><div class="sub">' + n.date + '</div></div></div>').join('') : '<p class="meta">Keine Mitteilungen. Ruhe ist ein gutes Zeichen.</p>' });
+    S.notifications.forEach(n => n.read = true);
+    renderNav(); save();
+  },
+  copyLink(d){
+    if (navigator.clipboard) navigator.clipboard.writeText(d.text || '');
+    toast('Link kopiert.');
+  },
+  copyMsg(){
+    const sh = S.ui.share;
+    const txt = (sh.msg || 'Hallo, anbei erhalten Sie die angeforderten Unterlagen über meinen sicheren FormPilot-Freigabelink.') + '\n\n' + (sh.link || '') + '\nZugriff bis ' + sh.expiresDate + '.';
+    if (navigator.clipboard) navigator.clipboard.writeText(txt);
+    toast('Antworttext kopiert.');
+  },
+  resolveConflict(d){
+    const k = S.conflicts.find(x => x.id === d.conflict);
+    if (d.take === 'doc'){ const f = findField(k.fieldId); if (f) f.value = k.docValue; }
+    S.conflicts = S.conflicts.filter(x => x.id !== d.conflict);
+    S.log.unshift({ date: today(), text:'Datenkonflikt bei „' + (findField(k.fieldId) ? findField(k.fieldId).label : k.fieldId) + '“ aufgelöst — von dir bestätigt.' });
+    render(); toast(d.take === 'doc' ? 'Wert aus Dokument übernommen.' : 'Profilwert bestätigt.');
+  },
+  quickSearch(d){ S.ui.search = d.q; go('suche'); render(); },
+  setZoom(el){ S.settings.fontZoom = +el.value; render(); toast('Gespeichert.'); },
+  toggleNotify(d, el){ S.settings[d.key] = el.checked; save(); toast('Gespeichert.'); },
+  requestCallback(){
+    openModal({ title:'Rückruf anfordern', confirmLabel:'Rückruf anfordern',
+      body:'<div class="field" style="margin-bottom:0"><label for="cb-phone">Telefonnummer</label><input type="text" id="cb-phone" value="+49 170 1234567" class="mono"><div class="help">Wir rufen werktags zwischen 9 und 17 Uhr zurück. Demo: simuliert.</div></div>',
+      onConfirm(){ closeModal(); toast('Demo: Die Rückruf-Anfrage ist simuliert.'); } });
+  }
+});
+
+function recognizeData(docName){
+  const n = docName.toLowerCase();
+  const out = [];
+  const push = (fieldId, value) => { const f = findField(fieldId); if (f && f.value !== value) out.push({ f, value }); };
+  if (/sozialversicherung|sv[-_ ]?ausweis|gehalt|lohn/.test(n)) push('svnr','12 160394 W 512');
+  if (/immatrikulation|studienbescheinigung/.test(n)){ push('matrikelnr','2216492'); push('semester','4'); }
+  if (/ausweis|reisepass/.test(n)){ push('geburtsdatum', P().id === 'maurice' ? '14.03.2000' : '02.11.1948'); push('geburtsort','Trier'); }
+  if (/renten?bescheid/.test(n)) push('rentenvnr','48 021148 W 023');
+  return out;
+}
+
+/* ---------- Daten aus Dokument/Foto übernehmen ---------- */
+const EXTRACTORS = [
+  { id:'ausweis', rx:/ausweis|reisepass|passport|perso/i, label:'Personalausweis', cat:'Ausweise', valid:'08.11.2030',
+    fields: pp => [['geburtsdatum', pp.id === 'opa' ? '02.11.1948' : '14.03.2000'], ['geburtsort','Trier'], ['staat','deutsch']],
+    customs: [['Ausweisnummer','L01X00T47', true]] },
+  { id:'gesundheitskarte', rx:/krankenkasse|gesundheitskarte|versichertenkarte|krankenversicherung/i, label:'Gesundheitskarte', cat:'Versicherung',
+    fields: pp => [['krankenkasse','AOK Rheinland-Pfalz/Saarland'], ['versnr','A123456789']] },
+  { id:'adac', rx:/adac|mitgliedskarte|mitglied/i, label:'ADAC-Mitgliedskarte', cat:'Verträge',
+    customs: [['Mitgliedsnummer ADAC','289 471 335 1', false], ['ADAC-Tarif','Plus-Mitgliedschaft', false]] },
+  { id:'gehalt', rx:/gehalt|lohn|abrechnung|sozialversicherung|sv[-_ ]?ausweis/i, label:'Gehaltsabrechnung', cat:'Arbeit',
+    fields: pp => [['svnr','12 160394 W 512'], ['steuerklasse','I'], ['steuerid','12 345 678 901']] },
+  { id:'immatrikulation', rx:/immatrikulation|studienbescheinigung|studierendenausweis/i, label:'Immatrikulationsbescheinigung', cat:'Bildung', valid:'31.03.2027',
+    fields: pp => [['matrikelnr','2216492'], ['semester','4'], ['hochschule','Hochschule Trier — Umwelt-Campus Birkenfeld']] },
+  { id:'rente', rx:/rente/i, label:'Rentenbescheid', cat:'Behörden',
+    fields: pp => [['rentenvnr','48 021148 W 023']] },
+  { id:'bank', rx:/bank|konto|iban|girocard|karte/i, label:'Bankkarte / Kontoauszug', cat:'Bank',
+    fields: pp => [['iban','DE89 3704 0044 0532 0130 00'], ['bankname','Sparkasse Trier']] }
+];
+function buildExtractRows(ex){
+  const rows = [];
+  if (ex.fields) for (const [fid, val] of ex.fields(P())){
+    const f = findField(fid);
+    if (f) rows.push({ mode:'profil', fieldId:fid, label:f.label, value:val, current:f.value, sens:!!f.sensitive });
+    else rows.push({ mode:'custom', label: fid, value:val, sens:false });
+  }
+  if (ex.customs) for (const [label, val, sens] of ex.customs){
+    const existing = (P().profile.find(g => g.id === 'eigene') || { fields:[] }).fields.find(f => f.label === label);
+    rows.push({ mode:'custom', label, value:val, current: existing ? existing.value : '', sens });
+  }
+  return rows;
+}
+function openExtractModal(exId, fname){
+  const ex = EXTRACTORS.find(x => x.id === exId);
+  const rows = buildExtractRows(ex);
+  S.ui.extractRows = rows; S.ui.extractEx = exId;
+  openModal({ title:'Erkannt: ' + ex.label, confirmLabel:'Ausgewählte übernehmen',
+    body:'<p style="font-size:13.5px;color:var(--slate);margin-bottom:14px">FormPilot hat diese Angaben gelesen. Prüfe und korrigiere sie — übernommen wird nur, was du auswählst. <span style="color:var(--grayblue)">(Demo: Die Texterkennung ist simuliert.)</span></p>' +
+    rows.map((r,i) =>
+      '<div style="display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-bottom:1px solid var(--line)">' +
+      '<input type="checkbox" id="exc-' + i + '"' + (r.current === r.value ? '' : ' checked') + ' style="width:20px;height:20px;accent-color:var(--marine);margin-top:12px;flex-shrink:0">' +
+      '<div style="flex:1"><label style="display:block;font-size:13px;font-weight:600;color:var(--marine);margin-bottom:4px">' + esc(r.label) +
+      (r.sens ? ' <span class="badge badge-warn">Sensibel</span>' : '') +
+      ' <span style="font-weight:400;color:var(--grayblue)">→ ' + (r.mode === 'profil' ? 'Profil' : 'Eigenes Feld') + '</span></label>' +
+      '<input type="text" id="exv-' + i + '" class="mono" value="' + esc(r.value) + '" style="height:40px">' +
+      (r.current && r.current !== r.value ? '<div class="help" style="color:var(--warn)">Bisher hinterlegt: ' + esc(r.current) + '</div>' : (r.current === r.value ? '<div class="help">Bereits identisch hinterlegt.</div>' : '')) +
+      '</div></div>').join('') +
+    '<label class="check-line" style="margin-top:14px"><input type="checkbox" id="ex-savedoc" checked><span>Dokument zusätzlich im Safe ablegen („' + esc(ex.label) + '“, Kategorie ' + ex.cat + ')</span></label>' +
+    '<div class="sec-note" style="margin-top:12px">' + I.shieldCheck(16) + '<span>Demo: Es wird keine echte Datei gespeichert. Nichts wird ohne deine Bestätigung übernommen.</span></div>',
+    onConfirm(){ FP.applyExtract(); } });
+}
+function runExtract(fname){
+  openModal({ title:'Dokument wird gelesen …', cancelLabel:'Abbrechen',
+    body:'<p style="font-size:13.5px;color:var(--slate)">' + esc(fname) + '</p><div class="progress" style="margin-top:14px"><div id="ex-prog" style="width:15%"></div></div>' });
+  let pr = 15;
+  const t = setInterval(() => {
+    pr += 28; const el = document.querySelector('#ex-prog');
+    if (el) el.style.width = Math.min(pr,100) + '%';
+    if (pr >= 100){
+      clearInterval(t);
+      const ex = EXTRACTORS.find(x => x.rx.test(fname));
+      if (ex) openExtractModal(ex.id, fname);
+      else openModal({ title:'Was ist das für ein Dokument?', cancelLabel:'Abbrechen',
+        body:'<p style="font-size:13.5px;color:var(--slate);margin-bottom:10px">FormPilot konnte den Typ nicht sicher erkennen. Wähle aus — die Erkennung lernt daraus.</p>' +
+        EXTRACTORS.map(x => '<div class="row" style="cursor:pointer;padding:10px 0" data-act="extractType" data-ex="' + x.id + '"><div class="grow"><div class="title" style="font-size:14.5px">' + x.label + '</div></div>' + I.chevron(16) + '</div>').join('') });
+    }
+  }, 260);
+}
+Object.assign(FP, {
+  extractFile(){ const el = document.querySelector('#extract-file'); if (el) el.click(); },
+  extractCam(){ const el = document.querySelector('#extract-cam'); if (el) el.click(); },
+  extractType(d){ openExtractModal(d.ex, ''); },
+  applyExtract(){
+    const rows = S.ui.extractRows || [];
+    const ex = EXTRACTORS.find(x => x.id === S.ui.extractEx);
+    let n = 0;
+    rows.forEach((r,i) => {
+      const cb = document.querySelector('#exc-' + i);
+      const iv = document.querySelector('#exv-' + i);
+      if (!cb || !cb.checked) return;
+      const val = iv ? iv.value.trim() : r.value;
+      if (!val) return;
+      if (r.mode === 'profil'){ const f = findField(r.fieldId); if (f){ f.value = val; f.needsReview = false; n++; } }
+      else {
+        let grp = P().profile.find(g => g.id === 'eigene');
+        if (!grp){ grp = { id:'eigene', name:'Eigene Felder', fields:[] }; P().profile.push(grp); }
+        const existing = grp.fields.find(f => f.label === r.label);
+        if (existing) existing.value = val;
+        else grp.fields.push({ id:'cf' + Date.now() + i, label:r.label, value:val, help:'Aus Dokument übernommen — von dir bestätigt.', sensitive:r.sens });
+        n++;
+      }
+    });
+    const sd = document.querySelector('#ex-savedoc');
+    if (sd && sd.checked && ex){
+      if (!S.documents.find(d => d.name === ex.label && (d.personId || 'maurice') === S.activePerson))
+        S.documents.unshift({ id:'d' + Date.now(), personId:S.activePerson, name:ex.label, cat:ex.cat, ext:'PDF', validUntil:ex.valid || '', added: today(), lastShared:'', status:'ok' });
+    }
+    if (n){ S.stats.extracted += n; S.log.unshift({ date: today(), text:n + ' Angabe(n) aus „' + (ex ? ex.label : 'Dokument') + '“ übernommen — von dir bestätigt.' }); }
+    S.ui.extractRows = null; S.ui.extractEx = null;
+    closeModal(); render();
+    toast(n ? n + ' Angabe(n) übernommen — nichts mehr abtippen.' : 'Keine Angaben übernommen.');
+  }
+});
+
+/* ---------- Event-Delegation ---------- */
+document.addEventListener('click', e => {
+  const t = e.target.closest('[data-act]');
+  if (!t) return;
+  const act = t.dataset.act;
+  /* Backdrop schließt nur bei Klick auf den Backdrop selbst — nicht bei Klicks im Modal */
+  if (act === 'closeModalBg' && e.target !== t) return;
+  if (t.tagName === 'INPUT' && t.type === 'checkbox'){ if (FP[act]) FP[act](t.dataset, t); return; }
+  e.preventDefault();
+  if (FP[act]) FP[act](t.dataset, t);
+});
+document.addEventListener('change', e => {
+  const t = e.target.closest('[data-act-change]');
+  if (t && FP[t.dataset.actChange]) FP[t.dataset.actChange](t);
+  if ((e.target.id === 'extract-file' || e.target.id === 'extract-cam') && e.target.files.length){
+    const fname = e.target.files[0].name || 'Foto';
+    e.target.value = '';
+    runExtract(fname);
+    return;
+  }
+  if (e.target.id === 'form-file' && e.target.files.length){
+    const fname = e.target.files[0].name;
+    S.ui.formUpload = { name: fname, progress: 0 };
+    simulateUpload(() => { S.ui.formUpload.progress = S.ui.formUpload.uploadProgress || 0; return S.ui.formUpload; }, () => {
+      S.ui.formUpload = null;
+      buildForm(detectFormTpl(fname));
+      render(); toast('Formularfelder erkannt. Bitte prüfe die Zuordnung.');
+    });
+    e.target.value = '';
+    return;
+  }
+  if (e.target.id === 'file-input' && e.target.files.length){
+    const fname = e.target.files[0].name;
+    S.ui.upload = { name: fname, progress: 0 };
+    simulateUpload(() => { S.ui.upload.progress = S.ui.upload.uploadProgress || 0; return S.ui.upload; }, () => {
+      S.ui.upload = null;
+      const guess = fname.replace(/\.[^.]+$/,'').replace(/[-_]/g,' ');
+      const det = detectDoc(fname);
+      openModal({ title:'Dokument benennen', confirmLabel:'Dokument speichern',
+        body:'<p style="margin-bottom:14px;font-size:13px;color:var(--slate)">Demo-Upload: Es wird keine echte Datei übertragen. Benenne und kategorisiere dein Dokument.</p>' +
+        (det ? '<div class="info-banner" style="margin-bottom:14px">' + I.info(18) + '<span>FormPilot-Vorschlag: Kategorie <b>' + det.cat + '</b>' + (det.valid ? ', Ablaufdatum <b>' + det.valid + '</b>' : '') + ' erkannt — bitte prüfen und bei Bedarf ändern.</span></div>' : '') +
+        '<div class="field"><label for="up-name">Name</label><input type="text" id="up-name" value="' + esc(guess) + '"></div>' +
+        '<div class="field"><label for="up-cat">Kategorie</label><select id="up-cat">' + DOC_CATS.slice(1).map(c => '<option' + (det && det.cat === c ? ' selected' : '') + '>' + c + '</option>').join('') + '</select></div>' +
+        '<div class="field" style="margin-bottom:0"><label for="up-valid">Gültig bis (optional)</label><input type="text" id="up-valid" value="' + (det ? det.valid : '') + '" placeholder="TT.MM.JJJJ"><div class="help">Ablaufende Dokumente werden rechtzeitig und ruhig erinnert.</div></div>' +
+        '<div class="sec-note" style="margin-top:14px">' + I.shieldCheck(16) + '<span>Testversion: Bitte keine echten sensiblen Daten eingeben. Es wird keine echte Datei übertragen.</span></div>',
+        onConfirm(){ FP.saveUpload(); } });
+    });
+    e.target.value = '';
+  }
+});
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape'){ closeModal(); return; }
+  if (e.key === 'Enter' && (e.target.id === 'side-search' || e.target.id === 'page-search')){ S.ui.search = e.target.value; go('suche'); render(); return; }
+  if ((e.key === 'Enter' || e.key === ' ') && e.target.getAttribute && e.target.getAttribute('role') === 'button' && e.target.hasAttribute('data-act')){
+    e.preventDefault(); e.target.click();
+  }
+});
+/* Drag & Drop */
+document.addEventListener('dragover', e => { const z = e.target.closest && e.target.closest('#dropzone'); if (z){ e.preventDefault(); z.classList.add('drag'); } });
+document.addEventListener('dragleave', e => { const z = e.target.closest && e.target.closest('#dropzone'); if (z) z.classList.remove('drag'); });
+document.addEventListener('drop', e => {
+  const z = e.target.closest && e.target.closest('#dropzone');
+  if (!z) return; e.preventDefault(); z.classList.remove('drag');
+  const fname = (e.dataTransfer.files[0] && e.dataTransfer.files[0].name) || 'Neues Dokument.pdf';
+  const fi = $('#file-input');
+  const dt = new DataTransfer();
+  if (e.dataTransfer.files[0]) dt.items.add(e.dataTransfer.files[0]);
+  if (dt.files.length){ fi.files = dt.files; fi.dispatchEvent(new Event('change', { bubbles:true })); }
+});
+/* Textarea live speichern */
+document.addEventListener('input', e => { if (e.target.id === 'req-text') S.ui.reqText = e.target.value; });
+
+render();
+</script>
+</body>
+</html>
